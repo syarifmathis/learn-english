@@ -12,6 +12,9 @@
     },
     "Going from zero to one is usually harder than going from one to ten.": {
       "status": "learning"
+    },
+    "Just because you fell off doesn't mean you have to start over from scratch.": {
+      "status": "learning"
     }
   },
   "customSentences": [
@@ -322,5 +325,5 @@
       "glossary": []
     }
   ],
-  "lastUpdated": "2026-05-10T09:59:04.286Z"
+  "lastUpdated": "2026-05-10T11:01:03.334Z"
 }
