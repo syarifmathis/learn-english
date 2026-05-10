@@ -1049,8 +1049,12 @@ function parseImport(text) {
       const p = JSON.parse(text);
       if (Array.isArray(p)) {
         return p.map(it => {
-          if (typeof it === 'string') return { text: it, glossary: [] };
-          if (it && it.text) return { text: String(it.text), glossary: Array.isArray(it.glossary) ? it.glossary : [] };
+          if (typeof it === 'string') return { text: it, glossary: [], note: '' };
+          if (it && it.text) return {
+            text: String(it.text),
+            glossary: Array.isArray(it.glossary) ? it.glossary : [],
+            note: typeof it.note === 'string' ? it.note : ''
+          };
           return null;
         }).filter(Boolean);
       }
@@ -1070,15 +1074,27 @@ function doImport(text, replace) {
   const items = parseImport(text);
   if (items.length === 0) { toast('No sentences found'); return false; }
   if (replace) {
-    state.customSentences = items;
+    state.customSentences = items.map(it => ({ text: it.text, glossary: it.glossary || [] }));
     state.progress = {};
+    items.forEach(it => {
+      if (it.note) {
+        state.progress[it.text] = { ...(state.progress[it.text] || {}), note: it.note };
+      }
+    });
   } else {
     const seen = new Set([
       ...DEFAULT_SENTENCES.map(s => s.text),
       ...state.customSentences.map(s => s.text)
     ]);
     items.forEach(it => {
-      if (!seen.has(it.text)) { state.customSentences.push(it); seen.add(it.text); }
+      if (!seen.has(it.text)) {
+        state.customSentences.push({ text: it.text, glossary: it.glossary || [] });
+        seen.add(it.text);
+      }
+      // Apply note even if sentence already exists (won't overwrite an existing note)
+      if (it.note && !state.progress[it.text]?.note) {
+        state.progress[it.text] = { ...(state.progress[it.text] || {}), note: it.note };
+      }
     });
   }
   state.currentIndex = 0;
