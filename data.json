@@ -1,0 +1,16 @@
+{
+  "version": 3,
+  "progress": {
+    "That's a fair point, although I'd argue the opposite.": {
+      "note": "Not opposait, its opposite"
+    },
+    "I've been meaning to bring this up at the next meeting.": {
+      "status": "learning"
+    },
+    "We're running a bit behind schedule on this project.": {
+      "status": "learning"
+    }
+  },
+  "customSentences": [],
+  "lastUpdated": "2026-05-10T09:24:37.161Z"
+}
