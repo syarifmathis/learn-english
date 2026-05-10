@@ -1,0 +1,1313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#312e81" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Sentences" />
+<meta name="mobile-web-app-capable" content="yes" />
+<link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect width='180' height='180' rx='40' fill='%23312e81'/><text x='90' y='118' font-size='100' text-anchor='middle' fill='white' font-family='-apple-system,sans-serif' font-weight='700'>EN</text></svg>" />
+<title>English Sentence Practice</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --bg-soft: #1e293b;
+    --card: #ffffff;
+    --card-text: #0f172a;
+    --muted: #64748b;
+    --accent: #6366f1;
+    --accent-2: #8b5cf6;
+    --good: #10b981;
+    --warn: #f59e0b;
+    --danger: #ef4444;
+    --border: #e2e8f0;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: linear-gradient(135deg, var(--bg) 0%, #312e81 100%);
+    min-height: 100vh;
+    color: #e2e8f0;
+    padding: 24px 16px 64px;
+    /* respect iOS safe areas (notch / home indicator) */
+    padding-top: max(24px, env(safe-area-inset-top));
+    padding-bottom: max(64px, env(safe-area-inset-bottom));
+    padding-left: max(16px, env(safe-area-inset-left));
+    padding-right: max(16px, env(safe-area-inset-right));
+    -webkit-tap-highlight-color: transparent;
+  }
+  /* prevent iOS Safari zoom on input focus */
+  input, textarea, select { font-size: 16px; }
+  .wrap { max-width: 760px; margin: 0 auto; }
+
+  header { text-align: center; margin-bottom: 16px; position: relative; }
+  header h1 {
+    margin: 0 0 6px; font-size: 28px; font-weight: 700;
+    background: linear-gradient(90deg, #a5b4fc, #c4b5fd);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  header p { margin: 0; color: #94a3b8; font-size: 14px; }
+
+  .sync-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    margin-top: 10px; padding: 6px 12px;
+    font-size: 12px; border-radius: 999px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: #94a3b8; cursor: pointer;
+    transition: all 0.15s;
+    max-width: 100%;
+  }
+  .sync-pill #sync-label {
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    max-width: 240px;
+  }
+  .sync-pill:hover { background: rgba(255,255,255,0.12); }
+  .sync-pill .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #64748b; transition: background 0.2s;
+  }
+  .sync-pill.local .dot { background: #94a3b8; }
+  .sync-pill.synced .dot { background: var(--good); }
+  .sync-pill.saving .dot { background: var(--warn); animation: pulse 1s infinite; }
+  .sync-pill.error .dot { background: var(--danger); }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+  .stats {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+    margin: 20px 0;
+  }
+  .stat {
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px; padding: 12px; text-align: center;
+  }
+  .stat .num { font-size: 22px; font-weight: 700; color: #fff; }
+  .stat .label { font-size: 11px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; }
+
+  .progress {
+    height: 6px; background: rgba(255,255,255,0.08); border-radius: 999px;
+    overflow: hidden; margin-bottom: 18px;
+  }
+  .progress-fill {
+    height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    width: 0%; transition: width 0.3s ease;
+  }
+
+  .card {
+    background: var(--card); color: var(--card-text);
+    border-radius: 20px; padding: 32px 24px;
+    box-shadow: 0 20px 50px -10px rgba(0,0,0,0.4);
+    min-height: 220px; display: flex; flex-direction: column;
+    justify-content: center; align-items: center; text-align: center;
+    position: relative; transition: transform 0.2s;
+  }
+  .card .index {
+    position: absolute; top: 12px; left: 16px;
+    font-size: 12px; color: var(--muted); font-weight: 600;
+  }
+  .card .badge {
+    position: absolute; top: 12px; right: 16px;
+    font-size: 11px; padding: 3px 8px; border-radius: 999px;
+    font-weight: 600; letter-spacing: 0.3px;
+  }
+  .badge.new { background: #e0e7ff; color: #4338ca; }
+  .badge.learning { background: #fef3c7; color: #92400e; }
+  .badge.known { background: #d1fae5; color: #065f46; }
+
+  .sentence {
+    font-size: 24px; font-weight: 600; line-height: 1.4;
+    margin: 8px 0 4px; cursor: pointer;
+  }
+  .hidden-mask {
+    color: transparent; background: linear-gradient(90deg, #cbd5e1, #e2e8f0);
+    border-radius: 6px; user-select: none;
+  }
+  .hint { font-size: 13px; color: var(--muted); margin-top: 12px; }
+
+  .controls {
+    display: flex; justify-content: space-between; align-items: center;
+    gap: 8px; margin-top: 16px;
+  }
+  .btn {
+    border: none; cursor: pointer; padding: 12px 16px;
+    border-radius: 10px; font-size: 14px; font-weight: 600;
+    background: rgba(255,255,255,0.08); color: #fff;
+    border: 1px solid rgba(255,255,255,0.1);
+    transition: all 0.15s;
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    min-height: 44px;
+    /* iOS tap feedback */
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+  .btn:hover { background: rgba(255,255,255,0.14); transform: translateY(-1px); }
+  .btn:active { transform: translateY(0); }
+  .btn.primary { background: var(--accent); border-color: transparent; }
+  .btn.primary:hover { background: #4f46e5; }
+  .btn.good { background: var(--good); border-color: transparent; }
+  .btn.warn { background: var(--warn); border-color: transparent; color: #1f2937; }
+  .btn.icon { padding: 10px; min-width: 42px; justify-content: center; }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  .actions-row {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px; margin-top: 12px;
+  }
+
+  .panel {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    margin-top: 12px;
+    overflow: hidden;
+  }
+  .panel-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 14px; font-size: 13px; color: #cbd5e1;
+    background: rgba(255,255,255,0.02);
+  }
+  .panel-header .title { font-weight: 600; display: flex; align-items: center; gap: 6px; }
+  .panel-header .small-btn {
+    background: transparent; border: 1px solid rgba(255,255,255,0.15);
+    color: #cbd5e1; font-size: 13px; padding: 8px 12px;
+    border-radius: 6px; cursor: pointer;
+    min-height: 36px;
+  }
+  .panel-header .small-btn:hover { background: rgba(255,255,255,0.08); }
+  .panel-body { padding: 12px 14px; }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip {
+    background: rgba(99,102,241,0.15);
+    border: 1px solid rgba(99,102,241,0.3);
+    color: #c7d2fe;
+    padding: 8px 12px; border-radius: 999px;
+    font-size: 13px; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px;
+    transition: all 0.15s;
+    min-height: 32px;
+  }
+  .chip:hover { background: rgba(99,102,241,0.25); }
+  .chip .word { font-weight: 600; }
+  .chip .meaning { color: #a5b4fc; font-weight: 400; }
+  .chip .meaning::before { content: " — "; color: #64748b; }
+  .empty-msg { color: #64748b; font-size: 13px; font-style: italic; }
+
+  .notes-textarea {
+    width: 100%; min-height: 70px; padding: 10px;
+    background: rgba(0,0,0,0.2); color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px; font-size: 14px; line-height: 1.5;
+    font-family: inherit; resize: vertical;
+  }
+  .notes-textarea:focus {
+    outline: none; border-color: var(--accent);
+    background: rgba(0,0,0,0.3);
+  }
+  .save-indicator {
+    font-size: 11px; color: #64748b;
+    transition: color 0.3s;
+  }
+  .save-indicator.saved { color: var(--good); }
+
+  .links-section { margin-top: 10px; }
+  .links-section .section-label {
+    font-size: 11px; color: #64748b; text-transform: uppercase;
+    letter-spacing: 0.5px; margin-bottom: 6px;
+  }
+  .link-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 0; font-size: 13px;
+  }
+  .link-item a {
+    color: #a5b4fc; text-decoration: none;
+    word-break: break-all; flex: 1;
+  }
+  .link-item a:hover { text-decoration: underline; }
+  .yt-thumb {
+    width: 80px; height: 45px; border-radius: 4px;
+    object-fit: cover; flex-shrink: 0;
+    background: #000;
+  }
+  .yt-thumb-link {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 0; text-decoration: none;
+    color: #a5b4fc;
+  }
+
+  .toolbar {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    margin-top: 24px; justify-content: center;
+  }
+  .toolbar .btn { font-size: 13px; padding: 8px 12px; }
+
+  .modal-bg {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+    display: none; align-items: center; justify-content: center;
+    z-index: 100; padding: 16px;
+  }
+  .modal-bg.show { display: flex; }
+  .modal {
+    background: #fff; color: #0f172a;
+    border-radius: 16px; padding: 24px;
+    max-width: 560px; width: 100%; max-height: 90vh;
+    overflow-y: auto;
+  }
+  .modal h2 { margin: 0 0 12px; font-size: 20px; }
+  .modal h3 { margin: 16px 0 6px; font-size: 14px; }
+  .modal p { color: var(--muted); font-size: 14px; line-height: 1.5; }
+  .modal textarea {
+    width: 100%; min-height: 140px; padding: 10px;
+    border: 1px solid var(--border); border-radius: 8px;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 13px;
+    resize: vertical;
+  }
+  .modal input[type="text"], .modal input[type="password"] {
+    width: 100%; padding: 10px;
+    border: 1px solid var(--border); border-radius: 8px;
+    font-size: 14px; margin-bottom: 8px;
+    font-family: inherit;
+  }
+  .modal label.field-label {
+    display: block; font-size: 12px; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.5px;
+    margin-bottom: 4px; margin-top: 8px;
+  }
+  .modal .modal-actions {
+    display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px;
+    flex-wrap: wrap;
+  }
+  .modal .btn { background: #f1f5f9; color: #0f172a; border-color: var(--border); }
+  .modal .btn:hover { background: #e2e8f0; }
+  .modal .btn.primary { background: var(--accent); color: #fff; border-color: transparent; }
+  .modal .btn.primary:hover { background: #4f46e5; }
+  .modal .btn.danger { background: var(--danger); color: #fff; border-color: transparent; }
+
+  .modal ol { padding-left: 20px; font-size: 13px; line-height: 1.7; color: #334155; }
+  .modal ol li { margin-bottom: 4px; }
+  .modal ol code {
+    background: #f1f5f9; padding: 1px 5px; border-radius: 4px;
+    font-size: 12px;
+  }
+  .modal ol a { color: var(--accent); }
+
+  .field-row {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+  }
+  .status-line {
+    padding: 8px 12px; border-radius: 8px; font-size: 13px;
+    margin-bottom: 12px;
+  }
+  .status-line.ok { background: #d1fae5; color: #065f46; }
+  .status-line.err { background: #fee2e2; color: #991b1b; }
+  .status-line.warn { background: #fef3c7; color: #92400e; }
+
+  .file-input { display: none; }
+
+  details {
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px; padding: 8px 12px; margin-top: 8px;
+    font-size: 13px;
+  }
+  details summary { cursor: pointer; color: #94a3b8; }
+  details code { background: rgba(255,255,255,0.08); padding: 1px 5px; border-radius: 4px; }
+  details pre {
+    background: #0f172a; color: #e2e8f0; padding: 8px;
+    border-radius: 6px; overflow-x: auto; font-size: 12px;
+  }
+
+  .toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: #0f172a; color: #fff; padding: 10px 16px;
+    border-radius: 8px; font-size: 14px;
+    border: 1px solid rgba(255,255,255,0.15);
+    opacity: 0; transition: all 0.3s;
+    pointer-events: none; z-index: 200;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  .error-banner {
+    background: rgba(239,68,68,0.15);
+    border: 1px solid rgba(239,68,68,0.4);
+    color: #fca5a5;
+    padding: 12px; border-radius: 8px;
+    font-size: 13px; margin-bottom: 12px;
+  }
+
+  @media (max-width: 480px) {
+    body { padding-left: 12px; padding-right: 12px; }
+    header h1 { font-size: 24px; }
+    header p { font-size: 13px; }
+    .sentence { font-size: 19px; }
+    .stat .num { font-size: 18px; }
+    .stat .label { font-size: 10px; }
+    .stat { padding: 10px 6px; }
+    .card { padding: 28px 18px; min-height: 200px; }
+    .card .index, .card .badge { font-size: 10px; }
+    .actions-row .btn { padding: 10px 8px; font-size: 13px; }
+    .toolbar .btn { padding: 10px 12px; font-size: 12px; }
+    .field-row { grid-template-columns: 1fr; }
+    .modal { padding: 20px 16px; border-radius: 12px; }
+    .modal h2 { font-size: 18px; }
+    .sync-pill #sync-label { max-width: 200px; }
+  }
+  @media (max-width: 360px) {
+    .sync-pill #sync-label { max-width: 160px; }
+    .actions-row .btn { font-size: 12px; padding: 10px 6px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>English Sentence Practice</h1>
+    <p>B2 Upper-Intermediate · 100 sentences for everyday fluency</p>
+    <div class="sync-pill local" id="sync-pill" title="Click to configure sync">
+      <span class="dot"></span><span id="sync-label">Local only · tap to sync</span>
+    </div>
+  </header>
+
+  <div id="error-area"></div>
+
+  <div class="stats">
+    <div class="stat"><div class="num" id="stat-total">0</div><div class="label">Total</div></div>
+    <div class="stat"><div class="num" id="stat-known">0</div><div class="label">Known</div></div>
+    <div class="stat"><div class="num" id="stat-learning">0</div><div class="label">Learning</div></div>
+  </div>
+
+  <div class="progress"><div class="progress-fill" id="progress-fill"></div></div>
+
+  <div class="card" id="card">
+    <span class="index" id="idx">1 / 100</span>
+    <span class="badge new" id="badge">New</span>
+    <div class="sentence" id="sentence">Loading…</div>
+    <div class="hint" id="hint">Tap the sentence to hide/reveal · Use arrows to navigate</div>
+  </div>
+
+  <div class="controls">
+    <button class="btn icon" id="prev" title="Previous (←)">←</button>
+    <button class="btn primary" id="speak" title="Speak (S)">🔊 Speak</button>
+    <button class="btn icon" id="next" title="Next (→)">→</button>
+  </div>
+
+  <div class="actions-row">
+    <button class="btn warn" id="mark-learning">📖 Learning</button>
+    <button class="btn good" id="mark-known">✓ Known</button>
+    <button class="btn" id="mark-new">↺ Reset</button>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header">
+      <span class="title">📖 Glossary</span>
+      <button class="small-btn" id="add-glossary">+ Add word</button>
+    </div>
+    <div class="panel-body">
+      <div class="chips" id="glossary-chips"></div>
+      <div class="empty-msg" id="glossary-empty" style="display:none;">No translations yet — click "Add word" to add one.</div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header">
+      <span class="title">📝 Personal note</span>
+      <span class="save-indicator" id="save-indicator">Auto-saves as you type</span>
+    </div>
+    <div class="panel-body">
+      <textarea class="notes-textarea" id="notes-text" placeholder="Add your own note, paste a YouTube link, or anything that helps you remember…"></textarea>
+      <div class="links-section" id="links-section" style="display:none;">
+        <div class="section-label">Links in note</div>
+        <div id="links-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <button class="btn" id="shuffle">🔀 Shuffle</button>
+    <button class="btn" id="filter">🎯 Filter: All</button>
+    <button class="btn" id="hide-toggle">👁 Hide mode: Off</button>
+    <button class="btn" id="sync-btn">☁ Sync settings</button>
+    <button class="btn" id="import-btn">📥 Import</button>
+    <button class="btn" id="export-btn">📤 Export</button>
+    <button class="btn" id="reset-all" title="Reset all progress">🗑 Reset all</button>
+  </div>
+</div>
+
+<!-- Sync settings modal -->
+<div class="modal-bg" id="sync-modal">
+  <div class="modal">
+    <h2>☁ GitHub Sync</h2>
+    <p>Your notes, glossary edits, and progress will be saved as JSON commits to a file in your GitHub repo. Works across devices, keeps version history.</p>
+
+    <div class="status-line" id="sync-status-line" style="display:none;"></div>
+
+    <h3>One-time setup</h3>
+    <ol>
+      <li>Open <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">github.com/settings/personal-access-tokens/new</a> (fine-grained tokens).</li>
+      <li>Token name: anything (e.g. <code>sentence-practice</code>). Expiration: as long as you want.</li>
+      <li>Repository access → <strong>Only select repositories</strong> → pick the repo where you host this app.</li>
+      <li>Permissions → Repository permissions → <strong>Contents: Read and write</strong>.</li>
+      <li>Click <strong>Generate token</strong>, copy it, paste below.</li>
+    </ol>
+
+    <h3>Connection</h3>
+    <div class="field-row">
+      <div>
+        <label class="field-label">Owner (GitHub username)</label>
+        <input type="text" id="gh-owner" placeholder="e.g. syarifmathis" />
+      </div>
+      <div>
+        <label class="field-label">Repository</label>
+        <input type="text" id="gh-repo" placeholder="e.g. english-app" />
+      </div>
+    </div>
+    <div class="field-row">
+      <div>
+        <label class="field-label">Branch</label>
+        <input type="text" id="gh-branch" placeholder="main" />
+      </div>
+      <div>
+        <label class="field-label">File path</label>
+        <input type="text" id="gh-path" placeholder="data.json" />
+      </div>
+    </div>
+    <label class="field-label">Personal Access Token</label>
+    <input type="password" id="gh-token" placeholder="github_pat_..." />
+    <p style="font-size:12px;color:#64748b;margin:0;">Stored only in your browser's localStorage. Never sent anywhere except api.github.com.</p>
+
+    <div class="modal-actions">
+      <button class="btn danger" id="sync-disconnect" style="margin-right:auto;display:none;">Disconnect</button>
+      <button class="btn" id="sync-test">Test connection</button>
+      <button class="btn" id="sync-cancel">Cancel</button>
+      <button class="btn primary" id="sync-save">Save & sync now</button>
+    </div>
+  </div>
+</div>
+
+<!-- First-sync conflict modal -->
+<div class="modal-bg" id="conflict-modal">
+  <div class="modal">
+    <h2>Existing data found on GitHub</h2>
+    <p>The file already exists in your repo. Which version do you want to keep?</p>
+    <div class="modal-actions">
+      <button class="btn" id="conflict-cancel">Cancel</button>
+      <button class="btn" id="conflict-use-remote">Use GitHub version (overwrites local)</button>
+      <button class="btn primary" id="conflict-use-local">Keep local (overwrites GitHub)</button>
+    </div>
+  </div>
+</div>
+
+<!-- Glossary edit modal -->
+<div class="modal-bg" id="glossary-modal">
+  <div class="modal">
+    <h2 id="glossary-modal-title">Add a translation</h2>
+    <p>Add a word or phrase from the sentence and what it means. You can write the meaning in any language.</p>
+    <label class="field-label">Word or phrase</label>
+    <input type="text" id="glossary-word" placeholder="e.g. play it by ear" />
+    <label class="field-label">Meaning / translation</label>
+    <input type="text" id="glossary-meaning" placeholder="e.g. decide as we go" />
+    <div class="modal-actions">
+      <button class="btn danger" id="glossary-delete" style="margin-right:auto;display:none;">Delete</button>
+      <button class="btn" id="glossary-cancel">Cancel</button>
+      <button class="btn primary" id="glossary-save">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Import Modal -->
+<div class="modal-bg" id="import-modal">
+  <div class="modal">
+    <h2>Import sentences</h2>
+    <p>Paste sentences below (one per line), or upload a file. Supported: <strong>plain text</strong>, <strong>JSON</strong>, <strong>CSV</strong>.</p>
+    <textarea id="import-text" placeholder="One sentence per line...&#10;Or paste JSON: [&quot;Hello&quot;, &quot;How are you?&quot;]"></textarea>
+    <details>
+      <summary>Format examples</summary>
+      <pre>Plain text (one per line):
+Hello, how are you?
+What's your name?
+
+JSON (with glossary):
+[
+  {
+    "text": "Let's play it by ear.",
+    "glossary": [{ "word": "play it by ear", "meaning": "decide as we go" }]
+  }
+]</pre>
+    </details>
+    <input type="file" class="file-input" id="file-input" accept=".txt,.json,.csv" />
+    <div class="modal-actions">
+      <button class="btn" id="upload-file">📁 Choose file</button>
+      <label style="margin-right:auto;display:flex;align-items:center;gap:6px;font-size:13px;color:#475569;">
+        <input type="checkbox" id="replace-existing" /> Replace existing
+      </label>
+      <button class="btn" id="import-cancel">Cancel</button>
+      <button class="btn primary" id="import-confirm">Import</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm Modal -->
+<div class="modal-bg" id="confirm-modal">
+  <div class="modal">
+    <h2 id="confirm-title">Are you sure?</h2>
+    <p id="confirm-text">This action cannot be undone.</p>
+    <div class="modal-actions">
+      <button class="btn" id="confirm-cancel">Cancel</button>
+      <button class="btn danger" id="confirm-ok">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="sentences.js"></script>
+<script>
+// ====================================================================
+//  Source data from sentences.js
+// ====================================================================
+const DEFAULT_SENTENCES = (window.SENTENCES_DATA || []).map(s =>
+  typeof s === 'string' ? { text: s, glossary: [] } : { text: s.text, glossary: s.glossary || [] }
+);
+
+if (DEFAULT_SENTENCES.length === 0) {
+  document.getElementById('error-area').innerHTML =
+    '<div class="error-banner">⚠ Could not load <code>sentences.js</code>. Make sure it sits next to <code>index.html</code>.</div>';
+}
+
+// ====================================================================
+//  Local state (cache + offline fallback)
+// ====================================================================
+const STATE_KEY = 'sentence-practice-v3';
+const GH_KEY = 'sentence-practice-gh-v1';
+
+let state = loadState();
+let ghSha = null;            // last known SHA of remote file
+let pushTimer = null;        // debounced push timer
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STATE_KEY);
+    if (raw) {
+      const p = JSON.parse(raw);
+      return {
+        progress: p.progress || {},
+        customSentences: p.customSentences || [],
+        currentIndex: p.currentIndex || 0,
+        filter: p.filter || 'all',
+        hideMode: !!p.hideMode
+      };
+    }
+  } catch (e) {}
+  return { progress: {}, customSentences: [], currentIndex: 0, filter: 'all', hideMode: false };
+}
+
+function saveLocal() {
+  try { localStorage.setItem(STATE_KEY, JSON.stringify(state)); } catch (e) {}
+}
+
+// saveState = persist locally AND queue a GitHub push if configured
+function saveState() {
+  saveLocal();
+  if (getGhConfig()) queuePush();
+}
+
+// ====================================================================
+//  GitHub sync
+// ====================================================================
+function getGhConfig() {
+  try { return JSON.parse(localStorage.getItem(GH_KEY) || 'null'); } catch { return null; }
+}
+function setGhConfig(cfg) {
+  if (cfg) localStorage.setItem(GH_KEY, JSON.stringify(cfg));
+  else localStorage.removeItem(GH_KEY);
+}
+
+function utf8ToB64(s) {
+  return btoa(unescape(encodeURIComponent(s)));
+}
+function b64ToUtf8(s) {
+  return decodeURIComponent(escape(atob(s.replace(/\n/g, ''))));
+}
+
+async function ghGet(cfg) {
+  cfg = cfg || getGhConfig();
+  if (!cfg) throw new Error('Not configured');
+  const url = `https://api.github.com/repos/${cfg.owner}/${cfg.repo}/contents/${encodeURIComponent(cfg.path)}?ref=${encodeURIComponent(cfg.branch || 'main')}`;
+  const res = await fetch(url, {
+    headers: {
+      'Authorization': `Bearer ${cfg.token}`,
+      'Accept': 'application/vnd.github+json'
+    }
+  });
+  if (res.status === 404) return { exists: false };
+  if (!res.ok) {
+    const body = await res.text();
+    throw new Error(`GitHub ${res.status}: ${body.slice(0, 200)}`);
+  }
+  const data = await res.json();
+  let content = null;
+  try { content = JSON.parse(b64ToUtf8(data.content)); } catch (e) { content = null; }
+  return { exists: true, sha: data.sha, content };
+}
+
+async function ghPut(cfg, payload, sha) {
+  cfg = cfg || getGhConfig();
+  if (!cfg) throw new Error('Not configured');
+  const url = `https://api.github.com/repos/${cfg.owner}/${cfg.repo}/contents/${encodeURIComponent(cfg.path)}`;
+  const body = {
+    message: `Update sentence practice data (${new Date().toISOString().slice(0, 16)})`,
+    content: utf8ToB64(JSON.stringify(payload, null, 2)),
+    branch: cfg.branch || 'main'
+  };
+  if (sha) body.sha = sha;
+  const res = await fetch(url, {
+    method: 'PUT',
+    headers: {
+      'Authorization': `Bearer ${cfg.token}`,
+      'Accept': 'application/vnd.github+json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(body)
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`GitHub ${res.status}: ${text.slice(0, 200)}`);
+  }
+  return await res.json();
+}
+
+function buildPayload() {
+  return {
+    version: 3,
+    progress: state.progress,
+    customSentences: state.customSentences,
+    lastUpdated: new Date().toISOString()
+  };
+}
+
+function applyRemote(content) {
+  if (!content) return;
+  state.progress = content.progress || {};
+  state.customSentences = content.customSentences || [];
+  saveLocal();
+  render();
+}
+
+function setSync(status, label) {
+  const pill = $('sync-pill');
+  pill.classList.remove('local', 'synced', 'saving', 'error');
+  pill.classList.add(status);
+  $('sync-label').textContent = label;
+  pill.title = label;
+}
+
+async function pushToGithub() {
+  const cfg = getGhConfig();
+  if (!cfg) return;
+  setSync('saving', 'Saving to GitHub…');
+  try {
+    if (!ghSha) {
+      const got = await ghGet(cfg);
+      ghSha = got.exists ? got.sha : null;
+    }
+    const result = await ghPut(cfg, buildPayload(), ghSha);
+    ghSha = result.content.sha;
+    setSync('synced', '☁ Synced to GitHub');
+  } catch (e) {
+    console.error(e);
+    setSync('error', '⚠ Sync error · click to view');
+    if (/\b(409|sha)\b/i.test(e.message)) ghSha = null;
+  }
+}
+
+function queuePush() {
+  setSync('saving', 'Saving…');
+  clearTimeout(pushTimer);
+  pushTimer = setTimeout(pushToGithub, 1500);
+}
+
+async function initialSyncFromGithub() {
+  const cfg = getGhConfig();
+  if (!cfg) {
+    setSync('local', 'Local only · tap to sync');
+    return;
+  }
+  setSync('saving', 'Loading from GitHub…');
+  try {
+    const got = await ghGet(cfg);
+    if (got.exists) {
+      ghSha = got.sha;
+      if (got.content) {
+        applyRemote(got.content);
+        setSync('synced', '☁ Synced from GitHub');
+      } else {
+        setSync('synced', '☁ Connected (empty file)');
+      }
+    } else {
+      // first time — push current local
+      const result = await ghPut(cfg, buildPayload(), null);
+      ghSha = result.content.sha;
+      setSync('synced', '☁ Synced (created data.json)');
+    }
+  } catch (e) {
+    console.error(e);
+    setSync('error', '⚠ Sync error · using local data');
+  }
+}
+
+// ====================================================================
+//  All sentences (defaults + custom imports)
+// ====================================================================
+function allSentences() {
+  const seen = new Set();
+  const out = [];
+  for (const s of DEFAULT_SENTENCES) {
+    if (!seen.has(s.text)) { seen.add(s.text); out.push(s); }
+  }
+  for (const s of state.customSentences) {
+    if (!seen.has(s.text)) { seen.add(s.text); out.push(s); }
+  }
+  return out;
+}
+function setProgress(text, patch) {
+  state.progress[text] = { ...(state.progress[text] || {}), ...patch };
+  saveState();
+}
+function effectiveGlossary(s) {
+  const u = state.progress[s.text]?.glossary;
+  return u || s.glossary || [];
+}
+function effectiveStatus(text) {
+  return state.progress[text]?.status || 'new';
+}
+function getFiltered() {
+  const all = allSentences();
+  if (state.filter === 'all') return all;
+  return all.filter(s => effectiveStatus(s.text) === state.filter);
+}
+function clampIndex() {
+  const list = getFiltered();
+  if (list.length === 0) return;
+  if (state.currentIndex >= list.length) state.currentIndex = 0;
+  if (state.currentIndex < 0) state.currentIndex = list.length - 1;
+}
+
+// ====================================================================
+//  DOM helpers + render
+// ====================================================================
+const $ = (id) => document.getElementById(id);
+const sentenceEl = $('sentence');
+const idxEl = $('idx');
+const badgeEl = $('badge');
+const progressFill = $('progress-fill');
+
+function render() {
+  const all = allSentences();
+  const list = getFiltered();
+  const total = all.length;
+  const known = all.filter(s => effectiveStatus(s.text) === 'known').length;
+  const learning = all.filter(s => effectiveStatus(s.text) === 'learning').length;
+  $('stat-total').textContent = total;
+  $('stat-known').textContent = known;
+  $('stat-learning').textContent = learning;
+  progressFill.style.width = total > 0 ? `${(known / total) * 100}%` : '0%';
+
+  if (list.length === 0) {
+    sentenceEl.textContent = 'No sentences match this filter.';
+    sentenceEl.classList.remove('hidden-mask');
+    idxEl.textContent = '0 / 0';
+    badgeEl.textContent = '';
+    badgeEl.className = 'badge';
+    renderGlossary(null);
+    renderNotes(null);
+    return;
+  }
+
+  clampIndex();
+  const cur = list[state.currentIndex];
+  const status = effectiveStatus(cur.text);
+  sentenceEl.textContent = cur.text;
+  sentenceEl.classList.toggle('hidden-mask', state.hideMode);
+  idxEl.textContent = `${state.currentIndex + 1} / ${list.length}`;
+  badgeEl.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+  badgeEl.className = `badge ${status}`;
+  renderGlossary(cur);
+  renderNotes(cur);
+}
+
+function currentSentence() {
+  return getFiltered()[state.currentIndex];
+}
+
+function setStatus(status) {
+  const cur = currentSentence();
+  if (!cur) return;
+  setProgress(cur.text, { status });
+  toast(status === 'known' ? '✓ Marked as known' : status === 'learning' ? '📖 Marked as learning' : '↺ Reset');
+  next();
+}
+function next() {
+  const list = getFiltered();
+  if (list.length === 0) return render();
+  state.currentIndex = (state.currentIndex + 1) % list.length;
+  saveLocal(); render();
+}
+function prev() {
+  const list = getFiltered();
+  if (list.length === 0) return render();
+  state.currentIndex = (state.currentIndex - 1 + list.length) % list.length;
+  saveLocal(); render();
+}
+function speak() {
+  const cur = currentSentence();
+  if (!cur) return;
+  if (!('speechSynthesis' in window)) return toast('Speech not supported');
+  speechSynthesis.cancel();
+  const utter = new SpeechSynthesisUtterance(cur.text);
+  utter.lang = 'en-US'; utter.rate = 0.95;
+  speechSynthesis.speak(utter);
+}
+
+// ====================================================================
+//  Glossary
+// ====================================================================
+function renderGlossary(s) {
+  const chips = $('glossary-chips');
+  const empty = $('glossary-empty');
+  chips.innerHTML = '';
+  if (!s) { empty.style.display = 'block'; return; }
+  const g = effectiveGlossary(s);
+  if (g.length === 0) { empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+  g.forEach((entry, i) => {
+    const chip = document.createElement('span');
+    chip.className = 'chip'; chip.title = 'Click to edit';
+    chip.innerHTML = `<span class="word"></span><span class="meaning"></span>`;
+    chip.querySelector('.word').textContent = entry.word;
+    chip.querySelector('.meaning').textContent = entry.meaning;
+    chip.addEventListener('click', () => openGlossaryModal(i));
+    chips.appendChild(chip);
+  });
+}
+let editingGlossaryIndex = -1;
+function openGlossaryModal(i) {
+  const cur = currentSentence();
+  if (!cur) return;
+  editingGlossaryIndex = (typeof i === 'number') ? i : -1;
+  const g = effectiveGlossary(cur);
+  if (editingGlossaryIndex >= 0) {
+    $('glossary-modal-title').textContent = 'Edit translation';
+    $('glossary-word').value = g[editingGlossaryIndex].word;
+    $('glossary-meaning').value = g[editingGlossaryIndex].meaning;
+    $('glossary-delete').style.display = 'inline-block';
+  } else {
+    $('glossary-modal-title').textContent = 'Add a translation';
+    $('glossary-word').value = '';
+    $('glossary-meaning').value = '';
+    $('glossary-delete').style.display = 'none';
+  }
+  openModal('glossary-modal');
+  setTimeout(() => $('glossary-word').focus(), 50);
+}
+function saveGlossaryEntry() {
+  const cur = currentSentence();
+  if (!cur) return;
+  const word = $('glossary-word').value.trim();
+  const meaning = $('glossary-meaning').value.trim();
+  if (!word || !meaning) return toast('Both fields required');
+  let g = state.progress[cur.text]?.glossary;
+  if (!g) g = (cur.glossary || []).map(x => ({ ...x }));
+  if (editingGlossaryIndex >= 0) g[editingGlossaryIndex] = { word, meaning };
+  else g.push({ word, meaning });
+  setProgress(cur.text, { glossary: g });
+  closeModal('glossary-modal'); render(); toast('✓ Saved');
+}
+function deleteGlossaryEntry() {
+  const cur = currentSentence();
+  if (!cur || editingGlossaryIndex < 0) return;
+  let g = state.progress[cur.text]?.glossary;
+  if (!g) g = (cur.glossary || []).map(x => ({ ...x }));
+  g.splice(editingGlossaryIndex, 1);
+  setProgress(cur.text, { glossary: g });
+  closeModal('glossary-modal'); render(); toast('✓ Deleted');
+}
+
+// ====================================================================
+//  Notes
+// ====================================================================
+let notesDebounce;
+function renderNotes(s) {
+  const ta = $('notes-text');
+  if (!s) { ta.value = ''; ta.disabled = true; renderLinks(''); return; }
+  ta.disabled = false;
+  ta.value = state.progress[s.text]?.note || '';
+  renderLinks(ta.value);
+}
+function onNotesInput() {
+  const cur = currentSentence();
+  if (!cur) return;
+  const val = $('notes-text').value;
+  $('save-indicator').textContent = 'Saving…';
+  $('save-indicator').classList.remove('saved');
+  clearTimeout(notesDebounce);
+  notesDebounce = setTimeout(() => {
+    setProgress(cur.text, { note: val });
+    renderLinks(val);
+    $('save-indicator').textContent = '✓ Saved';
+    $('save-indicator').classList.add('saved');
+    setTimeout(() => {
+      $('save-indicator').textContent = 'Auto-saves as you type';
+      $('save-indicator').classList.remove('saved');
+    }, 1500);
+  }, 350);
+}
+function extractUrls(t) { return t ? (t.match(/https?:\/\/[^\s)]+/g) || []) : []; }
+function ytId(u) {
+  const m = u.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{6,})/);
+  return m ? m[1] : null;
+}
+function renderLinks(text) {
+  const urls = extractUrls(text);
+  const section = $('links-section'), list = $('links-list');
+  list.innerHTML = '';
+  if (urls.length === 0) { section.style.display = 'none'; return; }
+  section.style.display = 'block';
+  const seen = new Set();
+  urls.forEach(url => {
+    if (seen.has(url)) return; seen.add(url);
+    const id = ytId(url);
+    if (id) {
+      const a = document.createElement('a');
+      a.href = url; a.target = '_blank'; a.rel = 'noopener'; a.className = 'yt-thumb-link';
+      a.innerHTML = `<img class="yt-thumb" alt="thumb"><span></span>`;
+      a.querySelector('img').src = `https://img.youtube.com/vi/${id}/mqdefault.jpg`;
+      a.querySelector('span').textContent = url;
+      list.appendChild(a);
+    } else {
+      const item = document.createElement('div');
+      item.className = 'link-item';
+      const a = document.createElement('a');
+      a.href = url; a.target = '_blank'; a.rel = 'noopener'; a.textContent = url;
+      item.appendChild(a); list.appendChild(item);
+    }
+  });
+}
+
+// ====================================================================
+//  Toast / modals
+// ====================================================================
+let toastTimer;
+function toast(msg) {
+  const t = $('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 1800);
+}
+function openModal(id) { $(id).classList.add('show'); }
+function closeModal(id) { $(id).classList.remove('show'); }
+function confirmDialog(title, text, onOk) {
+  $('confirm-title').textContent = title;
+  $('confirm-text').textContent = text;
+  openModal('confirm-modal');
+  const okBtn = $('confirm-ok');
+  const handler = () => { okBtn.removeEventListener('click', handler); closeModal('confirm-modal'); onOk(); };
+  okBtn.addEventListener('click', handler, { once: true });
+}
+
+// ====================================================================
+//  Filter / shuffle / hide
+// ====================================================================
+function cycleFilter() {
+  const order = ['all', 'new', 'learning', 'known'];
+  state.filter = order[(order.indexOf(state.filter) + 1) % order.length];
+  state.currentIndex = 0;
+  $('filter').textContent = `🎯 Filter: ${state.filter.charAt(0).toUpperCase() + state.filter.slice(1)}`;
+  saveLocal(); render();
+}
+function shuffle() {
+  const list = getFiltered();
+  if (list.length === 0) return;
+  state.currentIndex = Math.floor(Math.random() * list.length);
+  saveLocal(); render(); toast('🔀 Jumped to random');
+}
+function toggleHide() {
+  state.hideMode = !state.hideMode;
+  $('hide-toggle').textContent = `👁 Hide mode: ${state.hideMode ? 'On' : 'Off'}`;
+  saveLocal(); render();
+}
+
+// ====================================================================
+//  Import / Export
+// ====================================================================
+function parseImport(text) {
+  text = text.trim();
+  if (!text) return [];
+  if (text.startsWith('[') || text.startsWith('{')) {
+    try {
+      const p = JSON.parse(text);
+      if (Array.isArray(p)) {
+        return p.map(it => {
+          if (typeof it === 'string') return { text: it, glossary: [] };
+          if (it && it.text) return { text: String(it.text), glossary: Array.isArray(it.glossary) ? it.glossary : [] };
+          return null;
+        }).filter(Boolean);
+      }
+    } catch (e) {}
+  }
+  const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+  if (lines.some(l => l.includes(','))) {
+    return lines.map(l => {
+      const m = l.match(/^"([^"]*)"/);
+      const t = m ? m[1] : l.split(',')[0];
+      return t ? { text: t, glossary: [] } : null;
+    }).filter(Boolean);
+  }
+  return lines.map(t => ({ text: t, glossary: [] }));
+}
+function doImport(text, replace) {
+  const items = parseImport(text);
+  if (items.length === 0) { toast('No sentences found'); return false; }
+  if (replace) {
+    state.customSentences = items;
+    state.progress = {};
+  } else {
+    const seen = new Set([
+      ...DEFAULT_SENTENCES.map(s => s.text),
+      ...state.customSentences.map(s => s.text)
+    ]);
+    items.forEach(it => {
+      if (!seen.has(it.text)) { state.customSentences.push(it); seen.add(it.text); }
+    });
+  }
+  state.currentIndex = 0;
+  saveState(); render();
+  toast(`✓ Imported ${items.length} sentence${items.length === 1 ? '' : 's'}`);
+  return true;
+}
+function exportData() {
+  const blob = new Blob([JSON.stringify(buildPayload(), null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `sentence-practice-backup-${new Date().toISOString().slice(0, 10)}.json`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url); toast('📤 Exported');
+}
+
+// ====================================================================
+//  Sync settings UI
+// ====================================================================
+function openSyncModal() {
+  const cfg = getGhConfig();
+  $('gh-owner').value = cfg?.owner || '';
+  $('gh-repo').value = cfg?.repo || '';
+  $('gh-branch').value = cfg?.branch || 'main';
+  $('gh-path').value = cfg?.path || 'data.json';
+  $('gh-token').value = cfg?.token || '';
+  $('sync-disconnect').style.display = cfg ? 'inline-block' : 'none';
+  $('sync-status-line').style.display = 'none';
+  openModal('sync-modal');
+}
+
+function showSyncStatusLine(kind, msg) {
+  const el = $('sync-status-line');
+  el.className = 'status-line ' + kind;
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+function readSyncForm() {
+  return {
+    owner: $('gh-owner').value.trim(),
+    repo: $('gh-repo').value.trim(),
+    branch: $('gh-branch').value.trim() || 'main',
+    path: $('gh-path').value.trim() || 'data.json',
+    token: $('gh-token').value.trim()
+  };
+}
+
+async function testSyncConnection() {
+  const cfg = readSyncForm();
+  if (!cfg.owner || !cfg.repo || !cfg.token) {
+    return showSyncStatusLine('err', 'Owner, repo, and token are required.');
+  }
+  showSyncStatusLine('warn', 'Testing…');
+  try {
+    const url = `https://api.github.com/repos/${cfg.owner}/${cfg.repo}`;
+    const res = await fetch(url, {
+      headers: { 'Authorization': `Bearer ${cfg.token}`, 'Accept': 'application/vnd.github+json' }
+    });
+    if (res.status === 401) return showSyncStatusLine('err', 'Token rejected (401). Check the token.');
+    if (res.status === 404) return showSyncStatusLine('err', 'Repo not found or token has no access (404).');
+    if (!res.ok) return showSyncStatusLine('err', `GitHub returned ${res.status}.`);
+    showSyncStatusLine('ok', '✓ Connected — token has access to this repo.');
+  } catch (e) {
+    showSyncStatusLine('err', 'Network error: ' + e.message);
+  }
+}
+
+async function saveSyncSettings() {
+  const cfg = readSyncForm();
+  if (!cfg.owner || !cfg.repo || !cfg.token) {
+    return showSyncStatusLine('err', 'Owner, repo, and token are required.');
+  }
+  showSyncStatusLine('warn', 'Saving and syncing…');
+  // Save config first so subsequent calls use it
+  setGhConfig(cfg);
+  ghSha = null;
+
+  // Check if remote already has data
+  try {
+    const got = await ghGet(cfg);
+    if (got.exists && got.content && (Object.keys(got.content.progress || {}).length > 0 || (got.content.customSentences || []).length > 0)) {
+      // There's remote data — and we have local data too?
+      const hasLocal = Object.keys(state.progress).length > 0 || state.customSentences.length > 0;
+      if (hasLocal) {
+        // Show conflict modal
+        ghSha = got.sha;
+        closeModal('sync-modal');
+        $('conflict-use-remote').onclick = () => {
+          applyRemote(got.content);
+          setSync('synced', '☁ Synced from GitHub');
+          closeModal('conflict-modal');
+          toast('✓ Loaded from GitHub');
+        };
+        $('conflict-use-local').onclick = async () => {
+          closeModal('conflict-modal');
+          await pushToGithub();
+          toast('✓ Pushed local to GitHub');
+        };
+        $('conflict-cancel').onclick = () => closeModal('conflict-modal');
+        openModal('conflict-modal');
+        return;
+      } else {
+        // No local data — just use remote
+        ghSha = got.sha;
+        applyRemote(got.content);
+        setSync('synced', '☁ Synced from GitHub');
+        closeModal('sync-modal');
+        toast('✓ Loaded from GitHub');
+        return;
+      }
+    }
+    // No remote data — push local
+    const result = await ghPut(cfg, buildPayload(), got.exists ? got.sha : null);
+    ghSha = result.content.sha;
+    setSync('synced', '☁ Synced (created data.json)');
+    closeModal('sync-modal');
+    toast('✓ Connected & synced');
+  } catch (e) {
+    console.error(e);
+    showSyncStatusLine('err', 'Failed: ' + e.message);
+    setSync('error', '⚠ Sync error · click to view');
+  }
+}
+
+function disconnectSync() {
+  confirmDialog(
+    'Disconnect from GitHub?',
+    'Your local data stays. The token will be removed from this browser.',
+    () => {
+      setGhConfig(null);
+      ghSha = null;
+      setSync('local', 'Local only · tap to sync');
+      closeModal('sync-modal');
+      toast('Disconnected');
+    }
+  );
+}
+
+// ====================================================================
+//  Wire up
+// ====================================================================
+$('next').addEventListener('click', next);
+$('prev').addEventListener('click', prev);
+$('speak').addEventListener('click', speak);
+$('mark-known').addEventListener('click', () => setStatus('known'));
+$('mark-learning').addEventListener('click', () => setStatus('learning'));
+$('mark-new').addEventListener('click', () => setStatus('new'));
+$('shuffle').addEventListener('click', shuffle);
+$('filter').addEventListener('click', cycleFilter);
+$('hide-toggle').addEventListener('click', toggleHide);
+$('sentence').addEventListener('click', toggleHide);
+
+$('add-glossary').addEventListener('click', () => openGlossaryModal(-1));
+$('glossary-cancel').addEventListener('click', () => closeModal('glossary-modal'));
+$('glossary-save').addEventListener('click', saveGlossaryEntry);
+$('glossary-delete').addEventListener('click', deleteGlossaryEntry);
+$('notes-text').addEventListener('input', onNotesInput);
+
+$('sync-pill').addEventListener('click', openSyncModal);
+$('sync-btn').addEventListener('click', openSyncModal);
+$('sync-cancel').addEventListener('click', () => closeModal('sync-modal'));
+$('sync-test').addEventListener('click', testSyncConnection);
+$('sync-save').addEventListener('click', saveSyncSettings);
+$('sync-disconnect').addEventListener('click', disconnectSync);
+
+$('import-btn').addEventListener('click', () => {
+  $('import-text').value = ''; $('replace-existing').checked = false;
+  openModal('import-modal');
+});
+$('import-cancel').addEventListener('click', () => closeModal('import-modal'));
+$('import-confirm').addEventListener('click', () => {
+  const text = $('import-text').value;
+  const replace = $('replace-existing').checked;
+  if (replace) {
+    confirmDialog(
+      'Replace all imported sentences?',
+      'Your imported sentences and progress will be removed. Defaults from sentences.js stay.',
+      () => { if (doImport(text, true)) closeModal('import-modal'); }
+    );
+  } else {
+    if (doImport(text, false)) closeModal('import-modal');
+  }
+});
+$('upload-file').addEventListener('click', () => $('file-input').click());
+$('file-input').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => { $('import-text').value = ev.target.result; };
+  reader.readAsText(file);
+  $('file-input').value = '';
+});
+$('export-btn').addEventListener('click', exportData);
+$('confirm-cancel').addEventListener('click', () => closeModal('confirm-modal'));
+$('reset-all').addEventListener('click', () => {
+  confirmDialog(
+    'Reset everything?',
+    'Clears progress, notes, glossary edits, and imported sentences. GitHub config stays.',
+    () => {
+      localStorage.removeItem(STATE_KEY);
+      state = loadState();
+      render();
+      if (getGhConfig()) queuePush();
+      toast('🗑 Reset complete');
+    }
+  );
+});
+
+document.querySelectorAll('.modal-bg').forEach(bg => {
+  bg.addEventListener('click', (e) => { if (e.target === bg) bg.classList.remove('show'); });
+});
+document.addEventListener('keydown', (e) => {
+  if (document.querySelector('.modal-bg.show')) return;
+  if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT') return;
+  if (e.key === 'ArrowRight') next();
+  else if (e.key === 'ArrowLeft') prev();
+  else if (e.key === 's' || e.key === 'S') speak();
+  else if (e.key === 'k') setStatus('known');
+  else if (e.key === 'l') setStatus('learning');
+  else if (e.key === 'h') toggleHide();
+});
+
+$('filter').textContent = `🎯 Filter: ${state.filter.charAt(0).toUpperCase() + state.filter.slice(1)}`;
+$('hide-toggle').textContent = `👁 Hide mode: ${state.hideMode ? 'On' : 'Off'}`;
+render();
+
+// Try to sync from GitHub on startup (non-blocking)
+initialSyncFromGithub();
+</script>
+</body>
+</html>
