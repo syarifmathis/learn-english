@@ -15,6 +15,9 @@
     },
     "Just because you fell off doesn't mean you have to start over from scratch.": {
       "status": "learning"
+    },
+    "Missing once might be an accident, but missing twice could be the start of a new habit.": {
+      "status": "learning"
     }
   },
   "customSentences": [
@@ -325,5 +328,5 @@
       "glossary": []
     }
   ],
-  "lastUpdated": "2026-05-10T11:01:03.334Z"
+  "lastUpdated": "2026-05-10T11:01:11.800Z"
 }
