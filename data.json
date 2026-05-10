@@ -1,6 +1,10 @@
 {
   "version": 3,
-  "progress": {},
+  "progress": {
+    "That's a fair point, although I'd argue the opposite.": {
+      "note": "Not opposait"
+    }
+  },
   "customSentences": [],
-  "lastUpdated": "2026-05-10T09:19:44.927Z"
+  "lastUpdated": "2026-05-10T09:21:15.072Z"
 }
