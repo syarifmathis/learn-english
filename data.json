@@ -3,8 +3,11 @@
   "progress": {
     "That's a fair point, although I'd argue the opposite.": {
       "note": "Not opposait, its opposite"
+    },
+    "I've been meaning to bring this up at the next meeting.": {
+      "status": "learning"
     }
   },
   "customSentences": [],
-  "lastUpdated": "2026-05-10T09:21:21.100Z"
+  "lastUpdated": "2026-05-10T09:24:29.133Z"
 }
