@@ -9,8 +9,333 @@
     },
     "We're running a bit behind schedule on this project.": {
       "status": "learning"
+    },
+    "Going from zero to one is usually harder than going from one to ten.": {
+      "status": "learning"
+    },
+    "Just because you fell off doesn't mean you have to start over from scratch.": {
+      "status": "learning"
+    },
+    "Missing once might be an accident, but missing twice could be the start of a new habit.": {
+      "status": "learning"
+    },
+    "Once you've identified the trigger, you can start to interrupt the pattern.": {
+      "status": "learning"
+    },
+    "I'm a firm believer that environment beats willpower nine times out of ten.": {
+      "status": "learning"
+    },
+    "I've come to realise that small wins matter more than big breakthroughs.": {
+      "status": "known"
     }
   },
-  "customSentences": [],
-  "lastUpdated": "2026-05-10T09:24:37.161Z"
+  "customSentences": [
+    {
+      "text": "Small changes tend to add up over time, even when you can't see them straight away.",
+      "glossary": [
+        {
+          "word": "add up",
+          "meaning": "accumulate / build up gradually"
+        },
+        {
+          "word": "straight away",
+          "meaning": "immediately"
+        }
+      ]
+    },
+    {
+      "text": "I've been trying to get into the habit of going to bed at the same time every night.",
+      "glossary": [
+        {
+          "word": "get into the habit of",
+          "meaning": "start doing regularly"
+        }
+      ]
+    },
+    {
+      "text": "We tend to overestimate what we can do in a day and underestimate what we can do in a year.",
+      "glossary": [
+        {
+          "word": "overestimate / underestimate",
+          "meaning": "judge as more / less than something really is"
+        }
+      ]
+    },
+    {
+      "text": "It's not really about setting bigger goals — it's more about building better systems.",
+      "glossary": []
+    },
+    {
+      "text": "Every action you take is a kind of vote for the person you're becoming.",
+      "glossary": []
+    },
+    {
+      "text": "The trick is to make the new habit so easy that you almost can't say no.",
+      "glossary": [
+        {
+          "word": "the trick is",
+          "meaning": "the key / the clever part is"
+        }
+      ]
+    },
+    {
+      "text": "Once it becomes part of your routine, you barely have to think about it.",
+      "glossary": [
+        {
+          "word": "barely",
+          "meaning": "almost not / hardly"
+        }
+      ]
+    },
+    {
+      "text": "Most people give up just before they would have seen real progress.",
+      "glossary": []
+    },
+    {
+      "text": "Your environment shapes your behaviour more than you'd probably like to admit.",
+      "glossary": []
+    },
+    {
+      "text": "If you want to change what you do, you might need to change who you think you are.",
+      "glossary": []
+    },
+    {
+      "text": "Two minutes a day is often enough to get the ball rolling.",
+      "glossary": [
+        {
+          "word": "get the ball rolling",
+          "meaning": "start something / begin the process"
+        }
+      ]
+    },
+    {
+      "text": "Honestly, the hardest part is usually just getting started.",
+      "glossary": []
+    },
+    {
+      "text": "You don't really rise to the level of your goals — you fall to the level of your systems.",
+      "glossary": [
+        {
+          "word": "rise / fall to the level of",
+          "meaning": "perform up to / down to a standard"
+        }
+      ]
+    },
+    {
+      "text": "It might be worth stacking a new habit on top of one you already have.",
+      "glossary": [
+        {
+          "word": "stack on top of",
+          "meaning": "add / pile on (here: chain habits together)"
+        }
+      ]
+    },
+    {
+      "text": "It's worth keeping track of your progress, even if it feels a bit silly at first.",
+      "glossary": []
+    },
+    {
+      "text": "I'd rather make a tiny bit of progress every day than burn out trying to do too much at once.",
+      "glossary": [
+        {
+          "word": "burn out",
+          "meaning": "exhaust yourself / collapse from overwork"
+        }
+      ]
+    },
+    {
+      "text": "When you keep showing up, the results tend to take care of themselves.",
+      "glossary": [
+        {
+          "word": "show up",
+          "meaning": "appear / be present"
+        },
+        {
+          "word": "take care of itself",
+          "meaning": "happen without you forcing it"
+        }
+      ]
+    },
+    {
+      "text": "It's been said that you become the average of the five people you spend the most time with.",
+      "glossary": [
+        {
+          "word": "It's been said that",
+          "meaning": "people say / there's a saying"
+        }
+      ]
+    },
+    {
+      "text": "I came across this idea a few years ago and it really stuck with me.",
+      "glossary": [
+        {
+          "word": "come across",
+          "meaning": "find by chance"
+        },
+        {
+          "word": "stick with someone",
+          "meaning": "stay memorable to someone"
+        }
+      ]
+    },
+    {
+      "text": "There isn't really one big decision that changes your life — it's the cumulative effect that matters.",
+      "glossary": []
+    },
+    {
+      "text": "If you can't seem to stick with a habit, the friction is probably too high.",
+      "glossary": [
+        {
+          "word": "stick with",
+          "meaning": "continue doing / not abandon"
+        }
+      ]
+    },
+    {
+      "text": "Just because you fell off doesn't mean you have to start over from scratch.",
+      "glossary": [
+        {
+          "word": "fall off",
+          "meaning": "stop doing the habit"
+        },
+        {
+          "word": "from scratch",
+          "meaning": "from the very beginning"
+        }
+      ]
+    },
+    {
+      "text": "Missing once might be an accident, but missing twice could be the start of a new habit.",
+      "glossary": []
+    },
+    {
+      "text": "Don't break the chain — and if you do, try not to break it twice in a row.",
+      "glossary": [
+        {
+          "word": "break the chain",
+          "meaning": "interrupt a streak / give up the run"
+        },
+        {
+          "word": "in a row",
+          "meaning": "consecutively"
+        }
+      ]
+    },
+    {
+      "text": "It turns out that motivation is overrated; consistency is what actually moves the needle.",
+      "glossary": [
+        {
+          "word": "turn out",
+          "meaning": "be revealed to be"
+        },
+        {
+          "word": "overrated",
+          "meaning": "given more value than it deserves"
+        },
+        {
+          "word": "move the needle",
+          "meaning": "make a meaningful difference"
+        }
+      ]
+    },
+    {
+      "text": "Bad habits tend to creep in when you're not paying attention.",
+      "glossary": [
+        {
+          "word": "creep in",
+          "meaning": "appear gradually / sneak in"
+        }
+      ]
+    },
+    {
+      "text": "The cue, the craving, the response, and the reward — that's the loop you've got to be aware of.",
+      "glossary": []
+    },
+    {
+      "text": "I'd say the key is to make it obvious, attractive, easy, and satisfying.",
+      "glossary": []
+    },
+    {
+      "text": "Once you've identified the trigger, you can start to interrupt the pattern.",
+      "glossary": []
+    },
+    {
+      "text": "I'm a firm believer that environment beats willpower nine times out of ten.",
+      "glossary": [
+        {
+          "word": "I'm a firm believer that",
+          "meaning": "I strongly believe that"
+        },
+        {
+          "word": "nine times out of ten",
+          "meaning": "almost always"
+        }
+      ]
+    },
+    {
+      "text": "The thing about discipline is that it tends to get easier the more you practise it.",
+      "glossary": []
+    },
+    {
+      "text": "Identity-based habits stick because they're tied to who you are, not just what you want.",
+      "glossary": []
+    },
+    {
+      "text": "I don't think anyone's really got it all figured out — we're all just trying to get a little better.",
+      "glossary": [
+        {
+          "word": "have it figured out",
+          "meaning": "fully understand / have life sorted"
+        }
+      ]
+    },
+    {
+      "text": "Going from zero to one is usually harder than going from one to ten.",
+      "glossary": []
+    },
+    {
+      "text": "Sometimes you just have to show up, even when you really don't feel like it.",
+      "glossary": []
+    },
+    {
+      "text": "Letting yourself off the hook one time can quickly become a slippery slope.",
+      "glossary": [
+        {
+          "word": "let yourself off the hook",
+          "meaning": "excuse yourself / not hold yourself accountable"
+        },
+        {
+          "word": "slippery slope",
+          "meaning": "course of action leading to bad outcomes"
+        }
+      ]
+    },
+    {
+      "text": "I've come to realise that small wins matter more than big breakthroughs.",
+      "glossary": [
+        {
+          "word": "I've come to realise",
+          "meaning": "I've gradually understood"
+        }
+      ]
+    },
+    {
+      "text": "It might seem trivial, but those tiny improvements really do compound over time.",
+      "glossary": [
+        {
+          "word": "compound",
+          "meaning": "grow exponentially / build on themselves"
+        }
+      ]
+    },
+    {
+      "text": "Once you've built up some momentum, it's easier to keep going than to stop.",
+      "glossary": []
+    },
+    {
+      "text": "If I were you, I'd start with whatever feels almost too easy to skip.",
+      "glossary": []
+    }
+  ],
+  "lastUpdated": "2026-05-11T18:03:53.586Z"
 }
