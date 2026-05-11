@@ -18,6 +18,9 @@
     },
     "Missing once might be an accident, but missing twice could be the start of a new habit.": {
       "status": "learning"
+    },
+    "Once you've identified the trigger, you can start to interrupt the pattern.": {
+      "status": "learning"
     }
   },
   "customSentences": [
@@ -328,5 +331,5 @@
       "glossary": []
     }
   ],
-  "lastUpdated": "2026-05-10T11:01:11.800Z"
+  "lastUpdated": "2026-05-11T05:13:53.419Z"
 }
