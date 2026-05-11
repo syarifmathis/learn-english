@@ -432,6 +432,7 @@
   <div class="voice-row">
     <span>🎤 Voice:</span>
     <select id="voice-select"><option>System default</option></select>
+    <span id="voice-count" style="font-size:11px;color:#64748b;white-space:nowrap;">0</span>
   </div>
 
   <div class="panel">
@@ -462,10 +463,48 @@
   <div class="toolbar">
     <button class="btn" id="shuffle">🔀 Shuffle</button>
     <button class="btn" id="hide-toggle">👁 Hide mode: Off</button>
-    <button class="btn" id="sync-btn">☁ Sync settings</button>
+    <button class="btn" id="tts-btn">🗣 Cloud voice</button>
+    <button class="btn" id="sync-btn">☁ Sync</button>
     <button class="btn" id="import-btn">📥 Import</button>
     <button class="btn" id="export-btn">📤 Export</button>
     <button class="btn" id="reset-all" title="Reset all progress">🗑 Reset all</button>
+  </div>
+</div>
+
+<!-- TTS Cloud Voice modal -->
+<div class="modal-bg" id="tts-modal">
+  <div class="modal">
+    <h2>🗣 Cloud Voice (ElevenLabs)</h2>
+    <p>Use natural neural voices. Free tier covers ~200 sentences/month, and each sentence is cached locally after the first play — so re-practising costs nothing.</p>
+
+    <div class="status-line" id="tts-status-line" style="display:none;"></div>
+
+    <h3>One-time setup</h3>
+    <ol>
+      <li>Create a free account at <a href="https://elevenlabs.io" target="_blank" rel="noopener">elevenlabs.io</a>.</li>
+      <li>Open <a href="https://elevenlabs.io/app/settings/api-keys" target="_blank" rel="noopener">Profile → API Keys</a>, click "Create API key," copy it.</li>
+      <li>Paste below and click "Load voices."</li>
+    </ol>
+
+    <label class="field-label">ElevenLabs API key</label>
+    <input type="password" id="tts-key" placeholder="sk_..." />
+
+    <label class="field-label">Voice</label>
+    <select id="tts-voice"><option>Load voices first</option></select>
+
+    <label style="display:flex;align-items:center;gap:8px;margin-top:12px;font-size:14px;cursor:pointer;">
+      <input type="checkbox" id="tts-enabled" /> Use cloud voice for Speak button
+    </label>
+
+    <p style="font-size:12px;color:#64748b;margin:8px 0 0;" id="tts-cache-info">No audio cached yet.</p>
+
+    <div class="modal-actions">
+      <button class="btn danger" id="tts-clear-cache" style="margin-right:auto;">Clear cache</button>
+      <button class="btn" id="tts-load-voices">Load voices</button>
+      <button class="btn" id="tts-test">🔊 Test</button>
+      <button class="btn" id="tts-cancel">Cancel</button>
+      <button class="btn primary" id="tts-save">Save</button>
+    </div>
   </div>
 </div>
 
@@ -912,7 +951,8 @@ function isPremiumVoice(v) {
 
 function loadVoices() {
   if (!('speechSynthesis' in window)) return;
-  availableVoices = speechSynthesis.getVoices()
+  const allVoices = speechSynthesis.getVoices();
+  availableVoices = allVoices
     .filter(v => v.lang && v.lang.toLowerCase().startsWith('en'))
     .sort((a, b) => {
       const ap = isPremiumVoice(a) ? 0 : 1;
@@ -924,6 +964,11 @@ function loadVoices() {
   if (!sel) return;
   const saved = localStorage.getItem(VOICE_KEY);
   sel.innerHTML = '';
+  const cnt = $('voice-count');
+  const premiumCount = availableVoices.filter(isPremiumVoice).length;
+  if (cnt) cnt.textContent = `(${availableVoices.length} EN · ${allVoices.length} total · ★${premiumCount})`;
+  // Expose for debugging
+  window._allVoices = allVoices;
   if (availableVoices.length === 0) {
     const opt = document.createElement('option');
     opt.textContent = 'System default';
@@ -952,9 +997,110 @@ function getSelectedVoice() {
   return availableVoices.find(isPremiumVoice) || availableVoices[0];
 }
 
-function speak() {
+// ====================================================================
+//  Cloud TTS (ElevenLabs) with Cache API persistence
+// ====================================================================
+const TTS_CFG_KEY = 'sentence-practice-tts-cfg';
+const TTS_CACHE_NAME = 'sentence-practice-tts-v1';
+
+function getTtsConfig() {
+  try { return JSON.parse(localStorage.getItem(TTS_CFG_KEY) || 'null'); } catch { return null; }
+}
+function setTtsConfig(c) {
+  if (c) localStorage.setItem(TTS_CFG_KEY, JSON.stringify(c));
+  else localStorage.removeItem(TTS_CFG_KEY);
+}
+
+function ttsCacheRequest(voiceId, text) {
+  return new Request(`https://tts-cache.local/${voiceId}/${encodeURIComponent(text)}`);
+}
+
+async function ttsCacheGet(voiceId, text) {
+  if (!('caches' in window)) return null;
+  try {
+    const cache = await caches.open(TTS_CACHE_NAME);
+    const resp = await cache.match(ttsCacheRequest(voiceId, text));
+    return resp ? await resp.blob() : null;
+  } catch (e) { return null; }
+}
+async function ttsCachePut(voiceId, text, blob) {
+  if (!('caches' in window)) return;
+  try {
+    const cache = await caches.open(TTS_CACHE_NAME);
+    await cache.put(
+      ttsCacheRequest(voiceId, text),
+      new Response(blob, { headers: { 'Content-Type': 'audio/mpeg' } })
+    );
+  } catch (e) { console.warn('Cache put failed', e); }
+}
+async function ttsCacheClear() {
+  if (!('caches' in window)) return;
+  try { await caches.delete(TTS_CACHE_NAME); } catch {}
+}
+async function ttsCacheStats() {
+  if (!('caches' in window)) return { count: 0 };
+  try {
+    const cache = await caches.open(TTS_CACHE_NAME);
+    const keys = await cache.keys();
+    return { count: keys.length };
+  } catch { return { count: 0 }; }
+}
+
+async function elFetchVoices(apiKey) {
+  const res = await fetch('https://api.elevenlabs.io/v1/voices', {
+    headers: { 'xi-api-key': apiKey }
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}: ${(await res.text()).slice(0,200)}`);
+  const data = await res.json();
+  return data.voices || [];
+}
+
+async function elFetchAudio(text, cfg) {
+  const res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${cfg.voiceId}`, {
+    method: 'POST',
+    headers: {
+      'xi-api-key': cfg.apiKey,
+      'Content-Type': 'application/json',
+      'Accept': 'audio/mpeg'
+    },
+    body: JSON.stringify({
+      text,
+      model_id: 'eleven_multilingual_v2',
+      voice_settings: { stability: 0.5, similarity_boost: 0.75 }
+    })
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}: ${(await res.text()).slice(0,200)}`);
+  return await res.blob();
+}
+
+let currentAudio = null;
+
+async function cloudSpeak(text) {
+  const cfg = getTtsConfig();
+  if (!cfg || !cfg.enabled || !cfg.apiKey || !cfg.voiceId) return false;
+  try {
+    let blob = await ttsCacheGet(cfg.voiceId, text);
+    if (!blob) {
+      blob = await elFetchAudio(text, cfg);
+      await ttsCachePut(cfg.voiceId, text, blob);
+    }
+    if (currentAudio) { currentAudio.pause(); }
+    const url = URL.createObjectURL(blob);
+    currentAudio = new Audio(url);
+    currentAudio.onended = () => URL.revokeObjectURL(url);
+    await currentAudio.play();
+    return true;
+  } catch (e) {
+    console.error('Cloud TTS failed:', e);
+    toast('Cloud TTS error — using browser voice');
+    return false;
+  }
+}
+
+async function speak() {
   const cur = currentSentence();
   if (!cur) return;
+  if (await cloudSpeak(cur.text)) return;
   if (!('speechSynthesis' in window)) return toast('Speech not supported');
   speechSynthesis.cancel();
   const utter = new SpeechSynthesisUtterance(cur.text);
@@ -963,6 +1109,111 @@ function speak() {
   else utter.lang = 'en-US';
   utter.rate = 0.95;
   speechSynthesis.speak(utter);
+}
+
+// ----- TTS modal handlers -----
+function ttsStatus(kind, msg) {
+  const el = $('tts-status-line');
+  el.className = 'status-line ' + kind;
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+async function openTtsModal() {
+  const cfg = getTtsConfig();
+  $('tts-key').value = cfg?.apiKey || '';
+  $('tts-enabled').checked = !!cfg?.enabled;
+  $('tts-status-line').style.display = 'none';
+  const sel = $('tts-voice');
+  sel.innerHTML = '';
+  if (cfg?.apiKey && cfg?.voices?.length) {
+    cfg.voices.forEach(v => {
+      const opt = document.createElement('option');
+      opt.value = v.voice_id;
+      opt.textContent = `${v.name} (${v.labels?.accent || v.labels?.language || 'en'})`;
+      if (v.voice_id === cfg.voiceId) opt.selected = true;
+      sel.appendChild(opt);
+    });
+  } else {
+    const opt = document.createElement('option');
+    opt.textContent = 'Load voices first';
+    sel.appendChild(opt);
+  }
+  // Cache stats
+  const stats = await ttsCacheStats();
+  $('tts-cache-info').textContent = stats.count > 0
+    ? `${stats.count} sentence${stats.count === 1 ? '' : 's'} cached locally.`
+    : 'No audio cached yet.';
+  openModal('tts-modal');
+}
+
+async function ttsLoadVoices() {
+  const apiKey = $('tts-key').value.trim();
+  if (!apiKey) return ttsStatus('err', 'Paste your API key first.');
+  ttsStatus('warn', 'Loading voices…');
+  try {
+    const voices = await elFetchVoices(apiKey);
+    const sel = $('tts-voice');
+    sel.innerHTML = '';
+    voices.forEach(v => {
+      const opt = document.createElement('option');
+      opt.value = v.voice_id;
+      opt.textContent = `${v.name} (${v.labels?.accent || v.labels?.language || 'en'})`;
+      sel.appendChild(opt);
+    });
+    // Stash voices in config so we don't refetch
+    const existing = getTtsConfig() || {};
+    setTtsConfig({ ...existing, apiKey, voices });
+    ttsStatus('ok', `✓ Loaded ${voices.length} voices. Pick one and Save.`);
+  } catch (e) {
+    ttsStatus('err', 'Failed: ' + e.message);
+  }
+}
+
+async function ttsTest() {
+  const apiKey = $('tts-key').value.trim();
+  const voiceId = $('tts-voice').value;
+  if (!apiKey || !voiceId || voiceId === 'Load voices first') {
+    return ttsStatus('err', 'Load voices and pick one first.');
+  }
+  ttsStatus('warn', 'Generating sample…');
+  try {
+    const blob = await elFetchAudio("Hello! This is what your practice voice sounds like.", { apiKey, voiceId });
+    const url = URL.createObjectURL(blob);
+    const audio = new Audio(url);
+    audio.onended = () => URL.revokeObjectURL(url);
+    await audio.play();
+    ttsStatus('ok', '✓ Playing sample…');
+  } catch (e) {
+    ttsStatus('err', 'Failed: ' + e.message);
+  }
+}
+
+function ttsSave() {
+  const apiKey = $('tts-key').value.trim();
+  const voiceId = $('tts-voice').value;
+  const enabled = $('tts-enabled').checked;
+  if (!apiKey) return ttsStatus('err', 'API key required.');
+  if (enabled && (!voiceId || voiceId === 'Load voices first')) {
+    return ttsStatus('err', 'Pick a voice before enabling.');
+  }
+  const existing = getTtsConfig() || {};
+  setTtsConfig({ ...existing, apiKey, voiceId, enabled });
+  closeModal('tts-modal');
+  toast(enabled ? '✓ Cloud voice on' : '✓ Saved (cloud voice off)');
+}
+
+async function ttsClearCacheConfirm() {
+  confirmDialog(
+    'Clear audio cache?',
+    'All cached sentence audio will be deleted. Next time you tap Speak on a sentence, it will be re-fetched (and re-cached).',
+    async () => {
+      await ttsCacheClear();
+      const stats = await ttsCacheStats();
+      $('tts-cache-info').textContent = 'No audio cached yet.';
+      toast('🗑 Cache cleared');
+    }
+  );
 }
 
 // ====================================================================
@@ -1352,6 +1603,12 @@ $('notes-text').addEventListener('input', onNotesInput);
 
 $('sync-pill').addEventListener('click', openSyncModal);
 $('sync-btn').addEventListener('click', openSyncModal);
+$('tts-btn').addEventListener('click', openTtsModal);
+$('tts-cancel').addEventListener('click', () => closeModal('tts-modal'));
+$('tts-load-voices').addEventListener('click', ttsLoadVoices);
+$('tts-test').addEventListener('click', ttsTest);
+$('tts-save').addEventListener('click', ttsSave);
+$('tts-clear-cache').addEventListener('click', ttsClearCacheConfirm);
 $('sync-cancel').addEventListener('click', () => closeModal('sync-modal'));
 $('sync-test').addEventListener('click', testSyncConnection);
 $('sync-save').addEventListener('click', saveSyncSettings);
