@@ -33,6 +33,9 @@
     },
     "I'd rather make a tiny bit of progress every day than burn out trying to do too much at once.": {
       "status": "learning"
+    },
+    "The cue, the craving, the response, and the reward — that's the loop you've got to be aware of.": {
+      "status": "learning"
     }
   },
   "customSentences": [
@@ -343,5 +346,5 @@
       "glossary": []
     }
   ],
-  "lastUpdated": "2026-05-11T20:22:57.391Z"
+  "lastUpdated": "2026-05-11T20:23:41.141Z"
 }
