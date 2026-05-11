@@ -27,6 +27,9 @@
     },
     "I've come to realise that small wins matter more than big breakthroughs.": {
       "status": "known"
+    },
+    "Let's circle back to that point in a moment.": {
+      "status": "learning"
     }
   },
   "customSentences": [
@@ -337,5 +340,5 @@
       "glossary": []
     }
   ],
-  "lastUpdated": "2026-05-11T18:03:53.586Z"
+  "lastUpdated": "2026-05-11T20:21:35.125Z"
 }
