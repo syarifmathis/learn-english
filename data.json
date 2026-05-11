@@ -45,6 +45,9 @@
     },
     "Once you've built up some momentum, it's easier to keep going than to stop.": {
       "status": "learning"
+    },
+    "If I were you, I'd start with whatever feels almost too easy to skip.": {
+      "status": "learning"
     }
   },
   "customSentences": [
@@ -355,5 +358,5 @@
       "glossary": []
     }
   ],
-  "lastUpdated": "2026-05-11T20:27:47.607Z"
+  "lastUpdated": "2026-05-11T20:30:20.336Z"
 }
