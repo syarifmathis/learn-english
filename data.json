@@ -30,6 +30,9 @@
     },
     "Let's circle back to that point in a moment.": {
       "status": "learning"
+    },
+    "I'd rather make a tiny bit of progress every day than burn out trying to do too much at once.": {
+      "status": "learning"
     }
   },
   "customSentences": [
@@ -340,5 +343,5 @@
       "glossary": []
     }
   ],
-  "lastUpdated": "2026-05-11T20:21:35.125Z"
+  "lastUpdated": "2026-05-11T20:22:57.391Z"
 }
