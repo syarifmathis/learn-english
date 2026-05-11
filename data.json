@@ -21,6 +21,9 @@
     },
     "Once you've identified the trigger, you can start to interrupt the pattern.": {
       "status": "learning"
+    },
+    "I'm a firm believer that environment beats willpower nine times out of ten.": {
+      "status": "learning"
     }
   },
   "customSentences": [
@@ -331,5 +334,5 @@
       "glossary": []
     }
   ],
-  "lastUpdated": "2026-05-11T05:13:53.419Z"
+  "lastUpdated": "2026-05-11T05:14:13.481Z"
 }
