@@ -39,6 +39,9 @@
     },
     "The thing about discipline is that it tends to get easier the more you practise it.": {
       "status": "learning"
+    },
+    "Sometimes you just have to show up, even when you really don't feel like it.": {
+      "status": "learning"
     }
   },
   "customSentences": [
@@ -349,5 +352,5 @@
       "glossary": []
     }
   ],
-  "lastUpdated": "2026-05-11T20:24:42.291Z"
+  "lastUpdated": "2026-05-11T20:26:39.841Z"
 }
