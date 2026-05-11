@@ -24,6 +24,9 @@
     },
     "I'm a firm believer that environment beats willpower nine times out of ten.": {
       "status": "learning"
+    },
+    "I've come to realise that small wins matter more than big breakthroughs.": {
+      "status": "known"
     }
   },
   "customSentences": [
@@ -334,5 +337,5 @@
       "glossary": []
     }
   ],
-  "lastUpdated": "2026-05-11T05:14:13.481Z"
+  "lastUpdated": "2026-05-11T18:03:53.586Z"
 }
