@@ -77,15 +77,44 @@
   @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
 
   .stats {
-    display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
-    margin: 20px 0;
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;
+    margin: 20px 0 12px;
   }
   .stat {
     background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 12px; padding: 12px; text-align: center;
+    border-radius: 12px; padding: 10px 6px; text-align: center;
+    cursor: pointer; transition: all 0.15s;
+    -webkit-tap-highlight-color: transparent;
   }
-  .stat .num { font-size: 22px; font-weight: 700; color: #fff; }
-  .stat .label { font-size: 11px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; }
+  .stat:hover { background: rgba(255,255,255,0.10); }
+  .stat.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    box-shadow: 0 4px 14px -2px rgba(99,102,241,0.5);
+  }
+  .stat.active .num, .stat.active .label { color: #fff; }
+  .stat .num { font-size: 20px; font-weight: 700; color: #fff; }
+  .stat .label { font-size: 10px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; }
+
+  .voice-row {
+    display: flex; align-items: center; gap: 8px;
+    margin-top: 10px; padding: 0 4px;
+    font-size: 12px; color: #94a3b8;
+  }
+  .voice-row select {
+    flex: 1; padding: 8px 10px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: #e2e8f0; border-radius: 8px;
+    font-size: 13px; font-family: inherit;
+    min-height: 36px;
+    -webkit-appearance: none; appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'><path d='M3 4.5L6 7.5L9 4.5' stroke='%2394a3b8' stroke-width='1.5' fill='none'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    padding-right: 30px;
+  }
+  .voice-row select option { background: #1e293b; color: #e2e8f0; }
 
   .progress {
     height: 6px; background: rgba(255,255,255,0.08); border-radius: 999px;
@@ -373,9 +402,10 @@
   <div id="error-area"></div>
 
   <div class="stats">
-    <div class="stat"><div class="num" id="stat-total">0</div><div class="label">Total</div></div>
-    <div class="stat"><div class="num" id="stat-known">0</div><div class="label">Known</div></div>
-    <div class="stat"><div class="num" id="stat-learning">0</div><div class="label">Learning</div></div>
+    <div class="stat" data-filter="all"><div class="num" id="stat-all">0</div><div class="label">All</div></div>
+    <div class="stat" data-filter="new"><div class="num" id="stat-new">0</div><div class="label">New</div></div>
+    <div class="stat" data-filter="learning"><div class="num" id="stat-learning">0</div><div class="label">Learning</div></div>
+    <div class="stat" data-filter="known"><div class="num" id="stat-known">0</div><div class="label">Known</div></div>
   </div>
 
   <div class="progress"><div class="progress-fill" id="progress-fill"></div></div>
@@ -397,6 +427,11 @@
     <button class="btn warn" id="mark-learning">📖 Learning</button>
     <button class="btn good" id="mark-known">✓ Known</button>
     <button class="btn" id="mark-new">↺ Reset</button>
+  </div>
+
+  <div class="voice-row">
+    <span>🎤 Voice:</span>
+    <select id="voice-select"><option>System default</option></select>
   </div>
 
   <div class="panel">
@@ -426,7 +461,6 @@
 
   <div class="toolbar">
     <button class="btn" id="shuffle">🔀 Shuffle</button>
-    <button class="btn" id="filter">🎯 Filter: All</button>
     <button class="btn" id="hide-toggle">👁 Hide mode: Off</button>
     <button class="btn" id="sync-btn">☁ Sync settings</button>
     <button class="btn" id="import-btn">📥 Import</button>
@@ -809,9 +843,15 @@ function render() {
   const total = all.length;
   const known = all.filter(s => effectiveStatus(s.text) === 'known').length;
   const learning = all.filter(s => effectiveStatus(s.text) === 'learning').length;
-  $('stat-total').textContent = total;
+  const fresh = all.filter(s => effectiveStatus(s.text) === 'new').length;
+  $('stat-all').textContent = total;
+  $('stat-new').textContent = fresh;
   $('stat-known').textContent = known;
   $('stat-learning').textContent = learning;
+  // Highlight active filter
+  document.querySelectorAll('.stat').forEach(st => {
+    st.classList.toggle('active', st.dataset.filter === state.filter);
+  });
   progressFill.style.width = total > 0 ? `${(known / total) * 100}%` : '0%';
 
   if (list.length === 0) {
@@ -860,13 +900,68 @@ function prev() {
   state.currentIndex = (state.currentIndex - 1 + list.length) % list.length;
   saveLocal(); render();
 }
+// ====================================================================
+//  Voice selection
+// ====================================================================
+const VOICE_KEY = 'sentence-practice-voice';
+let availableVoices = [];
+
+function isPremiumVoice(v) {
+  return /premium|enhanced|natural|neural/i.test(v.name);
+}
+
+function loadVoices() {
+  if (!('speechSynthesis' in window)) return;
+  availableVoices = speechSynthesis.getVoices()
+    .filter(v => v.lang && v.lang.toLowerCase().startsWith('en'))
+    .sort((a, b) => {
+      const ap = isPremiumVoice(a) ? 0 : 1;
+      const bp = isPremiumVoice(b) ? 0 : 1;
+      if (ap !== bp) return ap - bp;
+      return a.name.localeCompare(b.name);
+    });
+  const sel = $('voice-select');
+  if (!sel) return;
+  const saved = localStorage.getItem(VOICE_KEY);
+  sel.innerHTML = '';
+  if (availableVoices.length === 0) {
+    const opt = document.createElement('option');
+    opt.textContent = 'System default';
+    sel.appendChild(opt);
+    sel.disabled = true;
+    return;
+  }
+  sel.disabled = false;
+  availableVoices.forEach(v => {
+    const opt = document.createElement('option');
+    opt.value = v.name;
+    const tag = isPremiumVoice(v) ? '★ ' : '';
+    opt.textContent = `${tag}${v.name} (${v.lang})`;
+    if (v.name === saved) opt.selected = true;
+    sel.appendChild(opt);
+  });
+}
+
+function getSelectedVoice() {
+  const saved = localStorage.getItem(VOICE_KEY);
+  if (saved) {
+    const found = availableVoices.find(v => v.name === saved);
+    if (found) return found;
+  }
+  // Prefer the first premium voice if any
+  return availableVoices.find(isPremiumVoice) || availableVoices[0];
+}
+
 function speak() {
   const cur = currentSentence();
   if (!cur) return;
   if (!('speechSynthesis' in window)) return toast('Speech not supported');
   speechSynthesis.cancel();
   const utter = new SpeechSynthesisUtterance(cur.text);
-  utter.lang = 'en-US'; utter.rate = 0.95;
+  const v = getSelectedVoice();
+  if (v) { utter.voice = v; utter.lang = v.lang; }
+  else utter.lang = 'en-US';
+  utter.rate = 0.95;
   speechSynthesis.speak(utter);
 }
 
@@ -1019,12 +1114,11 @@ function confirmDialog(title, text, onOk) {
 // ====================================================================
 //  Filter / shuffle / hide
 // ====================================================================
-function cycleFilter() {
-  const order = ['all', 'new', 'learning', 'known'];
-  state.filter = order[(order.indexOf(state.filter) + 1) % order.length];
+function setFilter(f) {
+  state.filter = f;
   state.currentIndex = 0;
-  $('filter').textContent = `🎯 Filter: ${state.filter.charAt(0).toUpperCase() + state.filter.slice(1)}`;
-  saveLocal(); render();
+  saveLocal();
+  render();
 }
 function shuffle() {
   const list = getFiltered();
@@ -1244,7 +1338,9 @@ $('mark-known').addEventListener('click', () => setStatus('known'));
 $('mark-learning').addEventListener('click', () => setStatus('learning'));
 $('mark-new').addEventListener('click', () => setStatus('new'));
 $('shuffle').addEventListener('click', shuffle);
-$('filter').addEventListener('click', cycleFilter);
+document.querySelectorAll('.stat').forEach(st => {
+  st.addEventListener('click', () => setFilter(st.dataset.filter));
+});
 $('hide-toggle').addEventListener('click', toggleHide);
 $('sentence').addEventListener('click', toggleHide);
 
@@ -1318,9 +1414,20 @@ document.addEventListener('keydown', (e) => {
   else if (e.key === 'h') toggleHide();
 });
 
-$('filter').textContent = `🎯 Filter: ${state.filter.charAt(0).toUpperCase() + state.filter.slice(1)}`;
 $('hide-toggle').textContent = `👁 Hide mode: ${state.hideMode ? 'On' : 'Off'}`;
 render();
+
+// Voice setup
+if ('speechSynthesis' in window) {
+  loadVoices();
+  if (speechSynthesis.onvoiceschanged !== undefined) {
+    speechSynthesis.onvoiceschanged = loadVoices;
+  }
+  $('voice-select').addEventListener('change', (e) => {
+    localStorage.setItem(VOICE_KEY, e.target.value);
+    toast('Voice updated');
+  });
+}
 
 // Try to sync from GitHub on startup (non-blocking)
 initialSyncFromGithub();
