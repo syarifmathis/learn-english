@@ -54,6 +54,9 @@
     },
     "Looking back, I think we made the right call.": {
       "status": "learning"
+    },
+    "It's worth weighing the pros and cons before deciding.": {
+      "status": "learning"
     }
   },
   "customSentences": [
@@ -364,5 +367,5 @@
       "glossary": []
     }
   ],
-  "lastUpdated": "2026-05-13T14:44:24.793Z"
+  "lastUpdated": "2026-05-13T14:44:52.979Z"
 }
