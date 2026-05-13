@@ -51,6 +51,9 @@
     },
     "On second thought, maybe we should reconsider.": {
       "status": "learning"
+    },
+    "Looking back, I think we made the right call.": {
+      "status": "learning"
     }
   },
   "customSentences": [
@@ -361,5 +364,5 @@
       "glossary": []
     }
   ],
-  "lastUpdated": "2026-05-13T14:44:04.098Z"
+  "lastUpdated": "2026-05-13T14:44:24.793Z"
 }
