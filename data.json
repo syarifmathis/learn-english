@@ -63,7 +63,8 @@
       "status": "learning"
     },
     "It can't have been easy for them.": {
-      "note": "is a phrase expressing empathy and strong deduction that a person or group went through a very difficult or challenging experience"
+      "note": "is a phrase expressing empathy and strong deduction that a person or group went through a very difficult or challenging experience",
+      "status": "learning"
     }
   },
   "customSentences": [
@@ -374,5 +375,5 @@
       "glossary": []
     }
   ],
-  "lastUpdated": "2026-05-13T20:08:20.813Z"
+  "lastUpdated": "2026-05-13T20:08:30.200Z"
 }
