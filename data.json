@@ -61,6 +61,9 @@
     "They could have been more upfront about it.": {
       "note": "hey should have been open about it from the beginning",
       "status": "learning"
+    },
+    "It can't have been easy for them.": {
+      "note": "is a phrase expressing empathy and strong deduction that a person or group went through a very difficult or challenging experience"
     }
   },
   "customSentences": [
@@ -371,5 +374,5 @@
       "glossary": []
     }
   ],
-  "lastUpdated": "2026-05-13T20:07:22.268Z"
+  "lastUpdated": "2026-05-13T20:08:20.813Z"
 }
