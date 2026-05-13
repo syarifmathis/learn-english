@@ -59,7 +59,8 @@
       "status": "learning"
     },
     "They could have been more upfront about it.": {
-      "note": "hey should have been open about it from the beginning"
+      "note": "hey should have been open about it from the beginning",
+      "status": "learning"
     }
   },
   "customSentences": [
@@ -370,5 +371,5 @@
       "glossary": []
     }
   ],
-  "lastUpdated": "2026-05-13T20:07:13.830Z"
+  "lastUpdated": "2026-05-13T20:07:22.268Z"
 }
