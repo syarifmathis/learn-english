@@ -48,6 +48,9 @@
     },
     "If I were you, I'd start with whatever feels almost too easy to skip.": {
       "status": "learning"
+    },
+    "On second thought, maybe we should reconsider.": {
+      "status": "learning"
     }
   },
   "customSentences": [
@@ -358,5 +361,5 @@
       "glossary": []
     }
   ],
-  "lastUpdated": "2026-05-11T20:30:20.336Z"
+  "lastUpdated": "2026-05-13T14:44:04.098Z"
 }
