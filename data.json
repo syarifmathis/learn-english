@@ -57,6 +57,9 @@
     },
     "It's worth weighing the pros and cons before deciding.": {
       "status": "learning"
+    },
+    "They could have been more upfront about it.": {
+      "note": "hey should have been open about it from the beginning"
     }
   },
   "customSentences": [
@@ -367,5 +370,5 @@
       "glossary": []
     }
   ],
-  "lastUpdated": "2026-05-13T14:44:52.979Z"
+  "lastUpdated": "2026-05-13T20:07:13.830Z"
 }
