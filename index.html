@@ -405,6 +405,44 @@
   .word-score.good { background: rgba(16,185,129,0.18); color: #6ee7b7; }
   .word-score.ok { background: rgba(245,158,11,0.18); color: #fcd34d; }
   .word-score.bad { background: rgba(239,68,68,0.18); color: #fca5a5; }
+  .word-score.missing {
+    background: rgba(148,163,184,0.18); color: #94a3b8;
+    text-decoration: line-through;
+  }
+  .word-score.extra {
+    background: rgba(168,85,247,0.18); color: #d8b4fe;
+    font-style: italic;
+  }
+
+  .diff-block {
+    margin-top: 12px; padding: 10px 12px;
+    background: rgba(245,158,11,0.08);
+    border: 1px solid rgba(245,158,11,0.25);
+    border-radius: 8px;
+  }
+  .diff-row { display: flex; gap: 10px; margin: 4px 0; font-size: 13px; }
+  .diff-label {
+    flex: 0 0 90px; font-size: 11px; color: #94a3b8;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    padding-top: 2px;
+  }
+  .diff-label.heard { color: #f59e0b; }
+  .diff-text { flex: 1; color: #e2e8f0; }
+  .diff-text.heard { color: #fcd34d; font-style: italic; }
+
+  .legend {
+    display: flex; flex-wrap: wrap; gap: 4px; align-items: center;
+    margin-top: 10px; font-size: 10px; color: #94a3b8;
+  }
+  .legend .ls {
+    display: inline-block; width: 10px; height: 10px;
+    border-radius: 2px; margin-right: 3px; margin-left: 8px;
+  }
+  .legend .ls:first-child { margin-left: 0; }
+  .legend .ls.good { background: #6ee7b7; }
+  .legend .ls.ok { background: #fcd34d; }
+  .legend .ls.bad { background: #fca5a5; }
+  .legend .ls.missing { background: #94a3b8; }
   .recognized-row {
     font-size: 13px; color: #cbd5e1;
     margin-top: 12px; font-style: italic;
@@ -1295,13 +1333,19 @@ async function startPractice() {
 
   const speechConfig = SDK.SpeechConfig.fromSubscription(cfg.key, cfg.region);
   speechConfig.speechRecognitionLanguage = "en-US";
-  // Auto-stop after 1.0s of silence at the end of the utterance
+  // Auto-stop after 1.5s of silence — generous enough for natural mid-sentence pauses
   try {
-    speechConfig.setProperty(SDK.PropertyId.Speech_SegmentationSilenceTimeoutMs, "1000");
+    speechConfig.setProperty(SDK.PropertyId.Speech_SegmentationSilenceTimeoutMs, "1500");
   } catch {}
 
+  // Clean reference text: strip em/en dashes (not pronounced — they confuse alignment)
+  const referenceText = cur.text
+    .replace(/[—–]/g, ',')
+    .replace(/\s+/g, ' ')
+    .trim();
+
   const pronConfig = new SDK.PronunciationAssessmentConfig(
-    cur.text,
+    referenceText,
     SDK.PronunciationAssessmentGradingSystem.HundredMark,
     SDK.PronunciationAssessmentGranularity.Phoneme,
     true // enableMiscue
@@ -1402,6 +1446,10 @@ function cleanupRecognizer() {
   }
 }
 
+function normalizeForCompare(s) {
+  return String(s).toLowerCase().replace(/[^\w']/g, '').trim();
+}
+
 function showPronResult(result, pronResult) {
   const panel = $('pron-panel');
   const body = $('pron-body');
@@ -1423,27 +1471,53 @@ function showPronResult(result, pronResult) {
   html += '</div>';
 
   // Per-word breakdown from the JSON detail result
+  let azureWords = [];
   try {
     const SDK = window.SpeechSDK;
     const jsonStr = result.properties.getProperty(SDK.PropertyId.SpeechServiceResponse_JsonResult);
     const data = JSON.parse(jsonStr);
-    const words = data?.NBest?.[0]?.Words || [];
-    if (words.length > 0) {
-      html += '<div class="section-hint">Per-word accuracy</div>';
-      html += '<div class="word-scores">';
-      words.forEach(w => {
-        const s = w.PronunciationAssessment?.AccuracyScore ?? 0;
-        const errorType = w.PronunciationAssessment?.ErrorType;
-        const note = errorType && errorType !== 'None' ? ` (${errorType})` : '';
-        html += `<span class="word-score ${cls(s)}" title="${Math.round(s)}/100${note}">${escapeHtml(w.Word)}</span>`;
-      });
-      html += '</div>';
-    }
+    azureWords = data?.NBest?.[0]?.Words || [];
   } catch (e) { console.warn('parse detail failed', e); }
 
+  // Reference text (what we asked them to say)
+  const cur = currentSentence();
+  const reference = cur ? cur.text : '';
   const heard = result.text || '';
-  if (heard) {
-    html += `<div class="recognized-row">Heard: "${escapeHtml(heard)}"</div>`;
+
+  // Did Azure mishear or miss any words?
+  const refNorm = normalizeForCompare(reference);
+  const heardNorm = normalizeForCompare(heard);
+  const mismatch = refNorm !== heardNorm;
+
+  // Show expected vs heard prominently when they differ
+  if (mismatch) {
+    html += '<div class="diff-block">';
+    html += `<div class="diff-row"><span class="diff-label">Expected</span><span class="diff-text">${escapeHtml(reference)}</span></div>`;
+    html += `<div class="diff-row"><span class="diff-label heard">Azure heard</span><span class="diff-text heard">${escapeHtml(heard || '(nothing)')}</span></div>`;
+    html += '</div>';
+  } else if (heard) {
+    html += `<div class="recognized-row">✓ Azure heard exactly what was expected.</div>`;
+  }
+
+  if (azureWords.length > 0) {
+    html += '<div class="section-hint">Per-word breakdown</div>';
+    html += '<div class="word-scores">';
+    azureWords.forEach(w => {
+      const s = w.PronunciationAssessment?.AccuracyScore ?? 0;
+      const errorType = w.PronunciationAssessment?.ErrorType;
+      const errLabel = errorType && errorType !== 'None' ? ` · ${errorType}` : '';
+      const titleAttr = `${Math.round(s)}/100${errLabel}`;
+      // Style: mark omissions/insertions differently
+      let extraCls = '';
+      if (errorType === 'Omission') extraCls = ' missing';
+      else if (errorType === 'Insertion') extraCls = ' extra';
+      const label = errorType === 'Omission'
+        ? `(${escapeHtml(w.Word)})`
+        : escapeHtml(w.Word);
+      html += `<span class="word-score ${cls(s)}${extraCls}" title="${titleAttr}">${label}</span>`;
+    });
+    html += '</div>';
+    html += '<div class="legend"><span class="ls good"></span>≥80<span class="ls ok"></span>60–79<span class="ls bad"></span>&lt;60<span class="ls missing"></span>missed</div>';
   }
 
   body.innerHTML = html;
