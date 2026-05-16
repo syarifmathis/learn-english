@@ -1328,6 +1328,18 @@ async function startPractice() {
   const cur = currentSentence();
   if (!cur) return;
 
+  // Stop any playing audio before opening the mic — otherwise the mic
+  // picks up the TTS playback through the speakers and Azure never hears silence.
+  if (currentAudio) {
+    try { currentAudio.pause(); currentAudio.currentTime = 0; } catch {}
+    currentAudio = null;
+  }
+  if ('speechSynthesis' in window) {
+    try { speechSynthesis.cancel(); } catch {}
+  }
+  // Let the audio system settle before opening the mic
+  await new Promise(r => setTimeout(r, 250));
+
   // Mic permission first
   try {
     await navigator.mediaDevices.getUserMedia({ audio: true });
