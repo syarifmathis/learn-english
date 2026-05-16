@@ -366,6 +366,58 @@
     font-size: 13px; margin-bottom: 12px;
   }
 
+  /* Practice (pronunciation) */
+  .practice-row { display: flex; gap: 6px; margin-top: 12px; }
+  .practice-row .practice-btn-main { flex: 1; font-size: 15px; padding: 14px; }
+  .practice-row .practice-btn-main.recording {
+    background: var(--danger) !important;
+    animation: pulse-rec 1.2s infinite;
+  }
+  @keyframes pulse-rec {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.5); }
+    50% { box-shadow: 0 0 0 10px rgba(239,68,68,0); }
+  }
+  .scores {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;
+  }
+  .score {
+    text-align: center; padding: 10px 4px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 8px;
+  }
+  .score .num { font-size: 22px; font-weight: 700; line-height: 1; }
+  .score .num.good { color: var(--good); }
+  .score .num.ok { color: var(--warn); }
+  .score .num.bad { color: var(--danger); }
+  .score .lbl {
+    font-size: 10px; color: #94a3b8;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    margin-top: 6px;
+  }
+  .word-scores { margin-top: 8px; line-height: 2; }
+  .word-score {
+    padding: 3px 7px; border-radius: 5px;
+    font-size: 14px; font-weight: 500;
+    margin-right: 2px;
+    display: inline-block;
+  }
+  .word-score.good { background: rgba(16,185,129,0.18); color: #6ee7b7; }
+  .word-score.ok { background: rgba(245,158,11,0.18); color: #fcd34d; }
+  .word-score.bad { background: rgba(239,68,68,0.18); color: #fca5a5; }
+  .recognized-row {
+    font-size: 13px; color: #cbd5e1;
+    margin-top: 12px; font-style: italic;
+    padding: 8px 10px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 6px;
+  }
+  .section-hint {
+    font-size: 11px; color: #94a3b8;
+    margin-top: 12px; margin-bottom: 4px;
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+
   @media (max-width: 480px) {
     body { padding-left: 12px; padding-right: 12px; }
     header h1 { font-size: 24px; }
@@ -429,6 +481,19 @@
     <button class="btn" id="mark-new">↺ Reset</button>
   </div>
 
+  <div class="practice-row">
+    <button class="btn primary practice-btn-main" id="practice-btn">🎤 Practice my pronunciation</button>
+    <button class="btn icon" id="practice-settings-btn" title="Pronunciation settings">⚙</button>
+  </div>
+
+  <div class="panel" id="pron-panel" style="display:none;">
+    <div class="panel-header">
+      <span class="title">🎯 Pronunciation result</span>
+      <button class="small-btn" id="pron-hide">Hide</button>
+    </div>
+    <div class="panel-body" id="pron-body"></div>
+  </div>
+
   <div class="voice-row">
     <span>🎤 Voice:</span>
     <select id="voice-select"><option>System default</option></select>
@@ -468,6 +533,35 @@
     <button class="btn" id="import-btn">📥 Import</button>
     <button class="btn" id="export-btn">📤 Export</button>
     <button class="btn" id="reset-all" title="Reset all progress">🗑 Reset all</button>
+  </div>
+</div>
+
+<!-- Pronunciation practice settings modal -->
+<div class="modal-bg" id="pron-modal">
+  <div class="modal">
+    <h2>🎤 Pronunciation Practice (Azure)</h2>
+    <p>Records your voice via the microphone and sends it to Azure Speech for scoring. Auto-stops when you finish speaking.</p>
+
+    <div class="status-line" id="pron-status-line" style="display:none;"></div>
+
+    <h3>One-time setup</h3>
+    <ol>
+      <li>Sign in to <a href="https://portal.azure.com" target="_blank" rel="noopener">portal.azure.com</a>.</li>
+      <li>Create a <strong>Speech</strong> resource (the free <strong>F0</strong> tier covers 5 hours/month of audio).</li>
+      <li>Open the resource → "Keys and Endpoint." Copy <strong>Key 1</strong> and the <strong>Location/Region</strong>.</li>
+    </ol>
+
+    <label class="field-label">Azure Speech API key</label>
+    <input type="password" id="azure-key" placeholder="Your Azure Speech key" />
+
+    <label class="field-label">Region</label>
+    <input type="text" id="azure-region" placeholder="e.g. eastus, westeurope, southeastasia" />
+
+    <div class="modal-actions">
+      <button class="btn danger" id="azure-disconnect" style="margin-right:auto;display:none;">Disconnect</button>
+      <button class="btn" id="azure-cancel">Cancel</button>
+      <button class="btn primary" id="azure-save">Save</button>
+    </div>
   </div>
 </div>
 
@@ -1111,6 +1205,251 @@ async function speak() {
   speechSynthesis.speak(utter);
 }
 
+// ====================================================================
+//  Pronunciation Practice (Azure Speech)
+// ====================================================================
+const AZURE_KEY = 'sentence-practice-azure-cfg';
+let activeRecognizer = null;
+let recordingStartMs = null;
+let recordingTimerId = null;
+let userStoppedRecording = false;
+let _sdkLoadPromise = null;
+
+function getAzureConfig() {
+  try { return JSON.parse(localStorage.getItem(AZURE_KEY) || 'null'); } catch { return null; }
+}
+function setAzureConfig(c) {
+  if (c) localStorage.setItem(AZURE_KEY, JSON.stringify(c));
+  else localStorage.removeItem(AZURE_KEY);
+}
+
+function loadSpeechSDK() {
+  if (window.SpeechSDK) return Promise.resolve(window.SpeechSDK);
+  if (_sdkLoadPromise) return _sdkLoadPromise;
+  _sdkLoadPromise = new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = 'https://aka.ms/csspeech/jsbrowserpackageraw';
+    s.onload = () => {
+      if (window.SpeechSDK) resolve(window.SpeechSDK);
+      else reject(new Error('SDK loaded but SpeechSDK global missing'));
+    };
+    s.onerror = () => reject(new Error('Failed to load speech SDK'));
+    document.head.appendChild(s);
+  });
+  return _sdkLoadPromise;
+}
+
+function setPracticeButtonState(state, label) {
+  const btn = $('practice-btn');
+  btn.classList.remove('recording');
+  btn.disabled = false;
+  if (state === 'recording') {
+    btn.classList.add('recording');
+    btn.innerHTML = label || '⏹ Stop';
+  } else if (state === 'processing') {
+    btn.disabled = true;
+    btn.innerHTML = '⏳ Analysing…';
+  } else {
+    btn.innerHTML = '🎤 Practice my pronunciation';
+  }
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c =>
+    ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+async function onPracticeClick() {
+  if (activeRecognizer) {
+    stopPractice();
+  } else {
+    await startPractice();
+  }
+}
+
+async function startPractice() {
+  const cfg = getAzureConfig();
+  if (!cfg || !cfg.key || !cfg.region) {
+    openPronModal();
+    return;
+  }
+  const cur = currentSentence();
+  if (!cur) return;
+
+  // Mic permission first (so the prompt shows up cleanly)
+  try {
+    await navigator.mediaDevices.getUserMedia({ audio: true });
+  } catch (e) {
+    return toast('Microphone access denied');
+  }
+
+  toast('Loading speech engine…');
+  let SDK;
+  try {
+    SDK = await loadSpeechSDK();
+  } catch (e) {
+    return toast('Failed to load Azure SDK');
+  }
+
+  const speechConfig = SDK.SpeechConfig.fromSubscription(cfg.key, cfg.region);
+  speechConfig.speechRecognitionLanguage = "en-US";
+
+  const pronConfig = new SDK.PronunciationAssessmentConfig(
+    cur.text,
+    SDK.PronunciationAssessmentGradingSystem.HundredMark,
+    SDK.PronunciationAssessmentGranularity.Phoneme,
+    true   // enableMiscue: penalises words you skip or add
+  );
+  try { pronConfig.enableProsodyAssessment = true; } catch {}
+
+  const audioConfig = SDK.AudioConfig.fromDefaultMicrophoneInput();
+  const recognizer = new SDK.SpeechRecognizer(speechConfig, audioConfig);
+  pronConfig.applyTo(recognizer);
+
+  activeRecognizer = recognizer;
+  userStoppedRecording = false;
+  recordingStartMs = Date.now();
+  setPracticeButtonState('recording', '⏹ Stop · 0.0s');
+  recordingTimerId = setInterval(() => {
+    if (!activeRecognizer) return;
+    const s = ((Date.now() - recordingStartMs) / 1000).toFixed(1);
+    setPracticeButtonState('recording', `⏹ Stop · ${s}s`);
+  }, 100);
+
+  recognizer.recognizeOnceAsync(
+    (result) => {
+      if (recordingTimerId) { clearInterval(recordingTimerId); recordingTimerId = null; }
+      if (userStoppedRecording) {
+        cleanupRecognizer();
+        setPracticeButtonState('idle');
+        return;
+      }
+      setPracticeButtonState('processing');
+      try {
+        if (result.reason === SDK.ResultReason.RecognizedSpeech) {
+          const pronResult = SDK.PronunciationAssessmentResult.fromResult(result);
+          showPronResult(result, pronResult);
+        } else if (result.reason === SDK.ResultReason.NoMatch) {
+          toast('Could not detect speech — try again');
+        } else {
+          const details = SDK.CancellationDetails.fromResult(result);
+          if (details.reason === SDK.CancellationReason.Error) {
+            toast('Azure error: ' + (details.errorDetails || 'unknown'));
+          }
+        }
+      } catch (e) {
+        toast('Error: ' + e.message);
+      } finally {
+        cleanupRecognizer();
+        setPracticeButtonState('idle');
+      }
+    },
+    (err) => {
+      if (recordingTimerId) { clearInterval(recordingTimerId); recordingTimerId = null; }
+      cleanupRecognizer();
+      setPracticeButtonState('idle');
+      if (!userStoppedRecording) toast('Error: ' + err);
+    }
+  );
+}
+
+function stopPractice() {
+  userStoppedRecording = true;
+  cleanupRecognizer();
+  if (recordingTimerId) { clearInterval(recordingTimerId); recordingTimerId = null; }
+  setPracticeButtonState('idle');
+}
+
+function cleanupRecognizer() {
+  if (activeRecognizer) {
+    try { activeRecognizer.close(); } catch {}
+    activeRecognizer = null;
+  }
+}
+
+function showPronResult(result, pronResult) {
+  const panel = $('pron-panel');
+  const body = $('pron-body');
+  panel.style.display = 'block';
+
+  const cls = (v) => v >= 80 ? 'good' : v >= 60 ? 'ok' : 'bad';
+  const scores = [
+    ['Overall', pronResult.pronunciationScore],
+    ['Accuracy', pronResult.accuracyScore],
+    ['Fluency', pronResult.fluencyScore],
+    ['Complete', pronResult.completenessScore]
+  ];
+
+  let html = '<div class="scores">';
+  scores.forEach(([lbl, val]) => {
+    const v = Math.round(val || 0);
+    html += `<div class="score"><div class="num ${cls(v)}">${v}</div><div class="lbl">${lbl}</div></div>`;
+  });
+  html += '</div>';
+
+  // Per-word breakdown from the JSON detail result
+  try {
+    const SDK = window.SpeechSDK;
+    const jsonStr = result.properties.getProperty(SDK.PropertyId.SpeechServiceResponse_JsonResult);
+    const data = JSON.parse(jsonStr);
+    const words = data?.NBest?.[0]?.Words || [];
+    if (words.length > 0) {
+      html += '<div class="section-hint">Per-word accuracy</div>';
+      html += '<div class="word-scores">';
+      words.forEach(w => {
+        const s = w.PronunciationAssessment?.AccuracyScore ?? 0;
+        const errorType = w.PronunciationAssessment?.ErrorType;
+        const note = errorType && errorType !== 'None' ? ` (${errorType})` : '';
+        html += `<span class="word-score ${cls(s)}" title="${Math.round(s)}/100${note}">${escapeHtml(w.Word)}</span>`;
+      });
+      html += '</div>';
+    }
+  } catch (e) { console.warn('parse detail failed', e); }
+
+  const heard = result.text || '';
+  if (heard) {
+    html += `<div class="recognized-row">Heard: "${escapeHtml(heard)}"</div>`;
+  }
+
+  body.innerHTML = html;
+}
+
+function openPronModal() {
+  const cfg = getAzureConfig();
+  $('azure-key').value = cfg?.key || '';
+  $('azure-region').value = cfg?.region || 'eastus';
+  $('azure-disconnect').style.display = cfg ? 'inline-block' : 'none';
+  $('pron-status-line').style.display = 'none';
+  openModal('pron-modal');
+}
+
+function savePronSettings() {
+  const key = $('azure-key').value.trim();
+  const region = $('azure-region').value.trim().toLowerCase();
+  const el = $('pron-status-line');
+  if (!key || !region) {
+    el.className = 'status-line err';
+    el.textContent = 'Both API key and region are required.';
+    el.style.display = 'block';
+    return;
+  }
+  setAzureConfig({ key, region });
+  closeModal('pron-modal');
+  toast('✓ Pronunciation setup saved');
+}
+
+function disconnectAzure() {
+  confirmDialog(
+    'Remove pronunciation setup?',
+    'The Azure key will be deleted from this browser.',
+    () => {
+      setAzureConfig(null);
+      closeModal('pron-modal');
+      toast('Disconnected');
+    }
+  );
+}
+
 // ----- TTS modal handlers -----
 function ttsStatus(kind, msg) {
   const el = $('tts-status-line');
@@ -1609,6 +1948,17 @@ $('tts-load-voices').addEventListener('click', ttsLoadVoices);
 $('tts-test').addEventListener('click', ttsTest);
 $('tts-save').addEventListener('click', ttsSave);
 $('tts-clear-cache').addEventListener('click', ttsClearCacheConfirm);
+
+$('practice-btn').addEventListener('click', onPracticeClick);
+$('practice-settings-btn').addEventListener('click', openPronModal);
+$('pron-hide').addEventListener('click', () => { $('pron-panel').style.display = 'none'; });
+$('azure-cancel').addEventListener('click', () => closeModal('pron-modal'));
+$('azure-save').addEventListener('click', savePronSettings);
+$('azure-disconnect').addEventListener('click', disconnectAzure);
+
+// Hide pronunciation result when navigating to a new sentence
+$('next').addEventListener('click', () => { $('pron-panel').style.display = 'none'; });
+$('prev').addEventListener('click', () => { $('pron-panel').style.display = 'none'; });
 $('sync-cancel').addEventListener('click', () => closeModal('sync-modal'));
 $('sync-test').addEventListener('click', testSyncConnection);
 $('sync-save').addEventListener('click', saveSyncSettings);
