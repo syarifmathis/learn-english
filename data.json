@@ -74,6 +74,9 @@
     },
     "Small changes tend to add up over time, even when you can't see them straight away.": {
       "status": "learning"
+    },
+    "Every action you take is a kind of vote for the person you're becoming.": {
+      "status": "learning"
     }
   },
   "customSentences": [
@@ -384,5 +387,5 @@
       "glossary": []
     }
   ],
-  "lastUpdated": "2026-05-16T14:22:38.136Z"
+  "lastUpdated": "2026-05-16T18:08:54.217Z"
 }
