@@ -68,6 +68,9 @@
     },
     "It was lovely catching up with you.": {
       "status": "learning"
+    },
+    "Let's stay in touch and not leave it so long next time.": {
+      "status": "learning"
     }
   },
   "customSentences": [
@@ -378,5 +381,5 @@
       "glossary": []
     }
   ],
-  "lastUpdated": "2026-05-16T14:04:41.979Z"
+  "lastUpdated": "2026-05-16T14:21:28.785Z"
 }
