@@ -71,6 +71,18 @@
     },
     "It was lovely catching up with you.": {
       "status": "learning"
+    },
+    "I'd better get going — I've got a lot on today.": {
+      "glossary": [
+        {
+          "word": "got a lot on",
+          "meaning": "have a lot to do / very busy"
+        },
+        {
+          "word": "Get going",
+          "meaning": "You need to leave, depart or start doing something"
+        }
+      ]
     }
   },
   "customSentences": [
@@ -381,5 +393,5 @@
       "glossary": []
     }
   ],
-  "lastUpdated": "2026-05-16T12:26:28.829Z"
+  "lastUpdated": "2026-05-16T12:40:08.148Z"
 }
