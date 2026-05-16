@@ -77,6 +77,9 @@
     },
     "Every action you take is a kind of vote for the person you're becoming.": {
       "status": "learning"
+    },
+    "Once it becomes part of your routine, you barely have to think about it.": {
+      "status": "learning"
     }
   },
   "customSentences": [
@@ -387,5 +390,5 @@
       "glossary": []
     }
   ],
-  "lastUpdated": "2026-05-16T18:08:54.217Z"
+  "lastUpdated": "2026-05-16T18:10:16.602Z"
 }
