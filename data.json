@@ -71,6 +71,9 @@
     },
     "Let's stay in touch and not leave it so long next time.": {
       "status": "learning"
+    },
+    "Small changes tend to add up over time, even when you can't see them straight away.": {
+      "status": "learning"
     }
   },
   "customSentences": [
@@ -381,5 +384,5 @@
       "glossary": []
     }
   ],
-  "lastUpdated": "2026-05-16T14:21:28.785Z"
+  "lastUpdated": "2026-05-16T14:22:38.136Z"
 }
