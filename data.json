@@ -66,23 +66,8 @@
       "note": "is a phrase expressing empathy and strong deduction that a person or group went through a very difficult or challenging experience",
       "status": "learning"
     },
-    "I was wondering if it comes in a smaller size.": {
-      "status": "learning"
-    },
     "It was lovely catching up with you.": {
       "status": "learning"
-    },
-    "I'd better get going — I've got a lot on today.": {
-      "glossary": [
-        {
-          "word": "got a lot on",
-          "meaning": "have a lot to do / very busy"
-        },
-        {
-          "word": "Get going",
-          "meaning": "You need to leave, depart or start doing something"
-        }
-      ]
     }
   },
   "customSentences": [
@@ -393,5 +378,5 @@
       "glossary": []
     }
   ],
-  "lastUpdated": "2026-05-16T12:40:08.148Z"
+  "lastUpdated": "2026-05-16T14:04:41.979Z"
 }
