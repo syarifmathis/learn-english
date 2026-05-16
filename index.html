@@ -1267,6 +1267,8 @@ async function onPracticeClick() {
   }
 }
 
+let resultHandled = false;
+
 async function startPractice() {
   const cfg = getAzureConfig();
   if (!cfg || !cfg.key || !cfg.region) {
@@ -1276,7 +1278,7 @@ async function startPractice() {
   const cur = currentSentence();
   if (!cur) return;
 
-  // Mic permission first (so the prompt shows up cleanly)
+  // Mic permission first
   try {
     await navigator.mediaDevices.getUserMedia({ audio: true });
   } catch (e) {
@@ -1293,12 +1295,16 @@ async function startPractice() {
 
   const speechConfig = SDK.SpeechConfig.fromSubscription(cfg.key, cfg.region);
   speechConfig.speechRecognitionLanguage = "en-US";
+  // Auto-stop after 1.0s of silence at the end of the utterance
+  try {
+    speechConfig.setProperty(SDK.PropertyId.Speech_SegmentationSilenceTimeoutMs, "1000");
+  } catch {}
 
   const pronConfig = new SDK.PronunciationAssessmentConfig(
     cur.text,
     SDK.PronunciationAssessmentGradingSystem.HundredMark,
     SDK.PronunciationAssessmentGranularity.Phoneme,
-    true   // enableMiscue: penalises words you skip or add
+    true // enableMiscue
   );
   try { pronConfig.enableProsodyAssessment = true; } catch {}
 
@@ -1308,6 +1314,7 @@ async function startPractice() {
 
   activeRecognizer = recognizer;
   userStoppedRecording = false;
+  resultHandled = false;
   recordingStartMs = Date.now();
   setPracticeButtonState('recording', '⏹ Stop · 0.0s');
   recordingTimerId = setInterval(() => {
@@ -1316,48 +1323,76 @@ async function startPractice() {
     setPracticeButtonState('recording', `⏹ Stop · ${s}s`);
   }, 100);
 
-  recognizer.recognizeOnceAsync(
-    (result) => {
+  // Fires when Azure has a final recognized utterance
+  recognizer.recognized = (s, e) => {
+    if (resultHandled || userStoppedRecording) return;
+    if (e.result.reason === SDK.ResultReason.RecognizedSpeech) {
+      resultHandled = true;
       if (recordingTimerId) { clearInterval(recordingTimerId); recordingTimerId = null; }
-      if (userStoppedRecording) {
-        cleanupRecognizer();
-        setPracticeButtonState('idle');
-        return;
-      }
       setPracticeButtonState('processing');
       try {
-        if (result.reason === SDK.ResultReason.RecognizedSpeech) {
-          const pronResult = SDK.PronunciationAssessmentResult.fromResult(result);
-          showPronResult(result, pronResult);
-        } else if (result.reason === SDK.ResultReason.NoMatch) {
-          toast('Could not detect speech — try again');
-        } else {
-          const details = SDK.CancellationDetails.fromResult(result);
-          if (details.reason === SDK.CancellationReason.Error) {
-            toast('Azure error: ' + (details.errorDetails || 'unknown'));
-          }
-        }
-      } catch (e) {
-        toast('Error: ' + e.message);
-      } finally {
+        const pronResult = SDK.PronunciationAssessmentResult.fromResult(e.result);
+        showPronResult(e.result, pronResult);
+      } catch (err) {
+        toast('Parse error: ' + err.message);
+      }
+      // Stop recognition now that we have our one result
+      try {
+        recognizer.stopContinuousRecognitionAsync(
+          () => { cleanupRecognizer(); setPracticeButtonState('idle'); },
+          () => { cleanupRecognizer(); setPracticeButtonState('idle'); }
+        );
+      } catch {
         cleanupRecognizer();
         setPracticeButtonState('idle');
       }
-    },
+    }
+  };
+
+  recognizer.canceled = (s, e) => {
+    if (recordingTimerId) { clearInterval(recordingTimerId); recordingTimerId = null; }
+    if (e.reason === SDK.CancellationReason.Error && !userStoppedRecording) {
+      toast('Azure error: ' + (e.errorDetails || 'unknown'));
+    }
+    cleanupRecognizer();
+    setPracticeButtonState('idle');
+  };
+
+  recognizer.sessionStopped = () => {
+    if (recordingTimerId) { clearInterval(recordingTimerId); recordingTimerId = null; }
+    if (!resultHandled && !userStoppedRecording) {
+      toast('Could not detect speech — try again');
+    }
+    cleanupRecognizer();
+    setPracticeButtonState('idle');
+  };
+
+  recognizer.startContinuousRecognitionAsync(
+    () => { /* started ok */ },
     (err) => {
-      if (recordingTimerId) { clearInterval(recordingTimerId); recordingTimerId = null; }
       cleanupRecognizer();
       setPracticeButtonState('idle');
-      if (!userStoppedRecording) toast('Error: ' + err);
+      toast('Failed to start: ' + err);
     }
   );
 }
 
 function stopPractice() {
   userStoppedRecording = true;
-  cleanupRecognizer();
   if (recordingTimerId) { clearInterval(recordingTimerId); recordingTimerId = null; }
-  setPracticeButtonState('idle');
+  if (activeRecognizer) {
+    try {
+      activeRecognizer.stopContinuousRecognitionAsync(
+        () => { cleanupRecognizer(); setPracticeButtonState('idle'); },
+        () => { cleanupRecognizer(); setPracticeButtonState('idle'); }
+      );
+    } catch {
+      cleanupRecognizer();
+      setPracticeButtonState('idle');
+    }
+  } else {
+    setPracticeButtonState('idle');
+  }
 }
 
 function cleanupRecognizer() {
