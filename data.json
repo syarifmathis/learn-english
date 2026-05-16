@@ -68,6 +68,9 @@
     },
     "I was wondering if it comes in a smaller size.": {
       "status": "learning"
+    },
+    "It was lovely catching up with you.": {
+      "status": "learning"
     }
   },
   "customSentences": [
@@ -378,5 +381,5 @@
       "glossary": []
     }
   ],
-  "lastUpdated": "2026-05-16T12:26:00.333Z"
+  "lastUpdated": "2026-05-16T12:26:28.829Z"
 }
