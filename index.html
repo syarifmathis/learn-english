@@ -443,6 +443,18 @@
   .legend .ls.ok { background: #fcd34d; }
   .legend .ls.bad { background: #fca5a5; }
   .legend .ls.missing { background: #94a3b8; }
+  .legend .ls.extra { background: #d8b4fe; }
+
+  .warn-note {
+    margin-top: 12px;
+    padding: 10px 12px;
+    background: rgba(245,158,11,0.12);
+    border: 1px solid rgba(245,158,11,0.35);
+    color: #fcd34d;
+    border-radius: 8px;
+    font-size: 12px;
+    line-height: 1.5;
+  }
   .recognized-row {
     font-size: 13px; color: #cbd5e1;
     margin-top: 12px; font-style: italic;
@@ -1450,75 +1462,134 @@ function normalizeForCompare(s) {
   return String(s).toLowerCase().replace(/[^\w']/g, '').trim();
 }
 
+function tokenizeWords(text) {
+  // Capture words including contractions (I'd, can't, I've), keep lowercase
+  return (text.match(/[a-zA-Z][a-zA-Z']*[a-zA-Z]|[a-zA-Z]/g) || []).map(w => w.toLowerCase());
+}
+
+// Word-level alignment using Longest Common Subsequence.
+// Returns ops: { type: 'match' | 'missing' | 'extra' | 'wrong', ... }
+function alignWords(refWords, heardWords) {
+  const m = refWords.length, n = heardWords.length;
+  const dp = Array.from({length: m+1}, () => new Array(n+1).fill(0));
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      if (refWords[i-1] === heardWords[j-1]) dp[i][j] = dp[i-1][j-1] + 1;
+      else dp[i][j] = Math.max(dp[i-1][j], dp[i][j-1]);
+    }
+  }
+  const ops = [];
+  let i = m, j = n;
+  while (i > 0 || j > 0) {
+    if (i > 0 && j > 0 && refWords[i-1] === heardWords[j-1]) {
+      ops.push({ type: 'match', word: refWords[i-1] }); i--; j--;
+    } else if (j > 0 && (i === 0 || dp[i][j-1] >= dp[i-1][j])) {
+      ops.push({ type: 'extra', word: heardWords[j-1] }); j--;
+    } else {
+      ops.push({ type: 'missing', word: refWords[i-1] }); i--;
+    }
+  }
+  ops.reverse();
+  // Coalesce adjacent missing+extra into substitution
+  const result = [];
+  let k = 0;
+  while (k < ops.length) {
+    const cur = ops[k], next = ops[k+1];
+    if (cur.type === 'missing' && next && next.type === 'extra') {
+      result.push({ type: 'wrong', expected: cur.word, said: next.word }); k += 2;
+    } else if (cur.type === 'extra' && next && next.type === 'missing') {
+      result.push({ type: 'wrong', expected: next.word, said: cur.word }); k += 2;
+    } else {
+      result.push(cur); k++;
+    }
+  }
+  return result;
+}
+
 function showPronResult(result, pronResult) {
   const panel = $('pron-panel');
   const body = $('pron-body');
   panel.style.display = 'block';
 
   const cls = (v) => v >= 80 ? 'good' : v >= 60 ? 'ok' : 'bad';
+
+  // Reference text + what Azure heard
+  const cur = currentSentence();
+  const reference = cur ? cur.text : '';
+  const heard = result.text || '';
+
+  // Build our own word alignment — Azure's miscue detection isn't reliable for short words
+  const refTokens = tokenizeWords(reference);
+  const heardTokens = tokenizeWords(heard);
+  const diffOps = alignWords(refTokens, heardTokens);
+
+  // Real metrics from our diff
+  const matched = diffOps.filter(o => o.type === 'match').length;
+  const matchPct = refTokens.length ? Math.round((matched / refTokens.length) * 100) : 0;
+  const hasMismatch = diffOps.some(o => o.type !== 'match');
+
+  // Parse Azure's per-word phoneme scores for words it heard
+  let azureScoreMap = new Map();
+  try {
+    const SDK = window.SpeechSDK;
+    const jsonStr = result.properties.getProperty(SDK.PropertyId.SpeechServiceResponse_JsonResult);
+    const data = JSON.parse(jsonStr);
+    (data?.NBest?.[0]?.Words || []).forEach(w => {
+      if (w.PronunciationAssessment?.ErrorType === 'Omission') return;
+      azureScoreMap.set(w.Word.toLowerCase(), w.PronunciationAssessment?.AccuracyScore ?? 0);
+    });
+  } catch (e) { console.warn('parse detail failed', e); }
+
+  // ---------- Render ----------
+  let html = '';
+
+  // 1) Score grid (Azure scores + our Match score)
   const scores = [
-    ['Overall', pronResult.pronunciationScore],
+    ['Match', matchPct],
     ['Accuracy', pronResult.accuracyScore],
     ['Fluency', pronResult.fluencyScore],
-    ['Complete', pronResult.completenessScore]
+    ['Overall', pronResult.pronunciationScore]
   ];
-
-  let html = '<div class="scores">';
+  html += '<div class="scores">';
   scores.forEach(([lbl, val]) => {
     const v = Math.round(val || 0);
     html += `<div class="score"><div class="num ${cls(v)}">${v}</div><div class="lbl">${lbl}</div></div>`;
   });
   html += '</div>';
 
-  // Per-word breakdown from the JSON detail result
-  let azureWords = [];
-  try {
-    const SDK = window.SpeechSDK;
-    const jsonStr = result.properties.getProperty(SDK.PropertyId.SpeechServiceResponse_JsonResult);
-    const data = JSON.parse(jsonStr);
-    azureWords = data?.NBest?.[0]?.Words || [];
-  } catch (e) { console.warn('parse detail failed', e); }
+  // 2) Warning when Azure scores look inflated vs real match
+  const azureOverall = Math.round(pronResult.pronunciationScore || 0);
+  if (hasMismatch && azureOverall - matchPct >= 15) {
+    html += `<div class="warn-note">⚠ Azure scored you on what it transcribed, not what was asked. Your real match rate is ${matchPct}% — see the diff below.</div>`;
+  }
 
-  // Reference text (what we asked them to say)
-  const cur = currentSentence();
-  const reference = cur ? cur.text : '';
-  const heard = result.text || '';
-
-  // Did Azure mishear or miss any words?
-  const refNorm = normalizeForCompare(reference);
-  const heardNorm = normalizeForCompare(heard);
-  const mismatch = refNorm !== heardNorm;
-
-  // Show expected vs heard prominently when they differ
-  if (mismatch) {
+  // 3) Expected vs Heard
+  if (hasMismatch) {
     html += '<div class="diff-block">';
     html += `<div class="diff-row"><span class="diff-label">Expected</span><span class="diff-text">${escapeHtml(reference)}</span></div>`;
     html += `<div class="diff-row"><span class="diff-label heard">Azure heard</span><span class="diff-text heard">${escapeHtml(heard || '(nothing)')}</span></div>`;
     html += '</div>';
   } else if (heard) {
-    html += `<div class="recognized-row">✓ Azure heard exactly what was expected.</div>`;
+    html += `<div class="recognized-row">✓ Every word matched the reference.</div>`;
   }
 
-  if (azureWords.length > 0) {
-    html += '<div class="section-hint">Per-word breakdown</div>';
-    html += '<div class="word-scores">';
-    azureWords.forEach(w => {
-      const s = w.PronunciationAssessment?.AccuracyScore ?? 0;
-      const errorType = w.PronunciationAssessment?.ErrorType;
-      const errLabel = errorType && errorType !== 'None' ? ` · ${errorType}` : '';
-      const titleAttr = `${Math.round(s)}/100${errLabel}`;
-      // Style: mark omissions/insertions differently
-      let extraCls = '';
-      if (errorType === 'Omission') extraCls = ' missing';
-      else if (errorType === 'Insertion') extraCls = ' extra';
-      const label = errorType === 'Omission'
-        ? `(${escapeHtml(w.Word)})`
-        : escapeHtml(w.Word);
-      html += `<span class="word-score ${cls(s)}${extraCls}" title="${titleAttr}">${label}</span>`;
-    });
-    html += '</div>';
-    html += '<div class="legend"><span class="ls good"></span>≥80<span class="ls ok"></span>60–79<span class="ls bad"></span>&lt;60<span class="ls missing"></span>missed</div>';
-  }
+  // 4) Per-word diff using OUR alignment
+  html += '<div class="section-hint">Word-by-word</div>';
+  html += '<div class="word-scores">';
+  diffOps.forEach(op => {
+    if (op.type === 'match') {
+      const s = azureScoreMap.get(op.word) ?? 100;
+      html += `<span class="word-score ${cls(s)}" title="${Math.round(s)}/100">${escapeHtml(op.word)}</span>`;
+    } else if (op.type === 'missing') {
+      html += `<span class="word-score missing" title="You didn't say this">(${escapeHtml(op.word)})</span>`;
+    } else if (op.type === 'extra') {
+      html += `<span class="word-score extra" title="Extra word, not in reference">+${escapeHtml(op.word)}</span>`;
+    } else if (op.type === 'wrong') {
+      html += `<span class="word-score bad" title="Expected '${escapeHtml(op.expected)}', heard '${escapeHtml(op.said)}'">${escapeHtml(op.expected)} → ${escapeHtml(op.said)}</span>`;
+    }
+  });
+  html += '</div>';
+  html += '<div class="legend"><span class="ls good"></span>≥80<span class="ls ok"></span>60–79<span class="ls bad"></span>wrong<span class="ls missing"></span>missed<span class="ls extra"></span>extra</div>';
 
   body.innerHTML = html;
 }
