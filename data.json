@@ -388,7 +388,415 @@
     {
       "text": "If I were you, I'd start with whatever feels almost too easy to skip.",
       "glossary": []
+    },
+    {
+      "text": "I'm going to give him the benefit of the doubt for now.",
+      "glossary": [
+        {
+          "word": "give someone the benefit of the doubt",
+          "meaning": "choose to believe someone is honest/right when you're not 100% sure"
+        }
+      ]
+    },
+    {
+      "text": "To be fair, she hasn't really had a chance to explain herself yet.",
+      "glossary": [
+        {
+          "word": "to be fair",
+          "meaning": "being honest / considering all sides"
+        }
+      ]
+    },
+    {
+      "text": "I wouldn't read too much into it if I were you.",
+      "glossary": [
+        {
+          "word": "read too much into",
+          "meaning": "find meaning that isn't really there"
+        }
+      ]
+    },
+    {
+      "text": "That's not what I meant — let me put it differently.",
+      "glossary": []
+    },
+    {
+      "text": "I have a feeling something's off, but I can't quite explain why.",
+      "glossary": [
+        {
+          "word": "something's off",
+          "meaning": "something isn't right / feels wrong"
+        }
+      ]
+    },
+    {
+      "text": "We've been going back and forth on this for weeks now.",
+      "glossary": [
+        {
+          "word": "go back and forth",
+          "meaning": "switch between options without deciding"
+        }
+      ]
+    },
+    {
+      "text": "I'd hate to put you on the spot, but what's your take?",
+      "glossary": [
+        {
+          "word": "put someone on the spot",
+          "meaning": "force someone to answer immediately"
+        },
+        {
+          "word": "your take",
+          "meaning": "your opinion / interpretation"
+        }
+      ]
+    },
+    {
+      "text": "To cut a long story short, we ended up cancelling the trip.",
+      "glossary": [
+        {
+          "word": "to cut a long story short",
+          "meaning": "to summarise briefly / skip the details"
+        }
+      ]
+    },
+    {
+      "text": "It looks like we'll have to make do with what we've got.",
+      "glossary": [
+        {
+          "word": "make do with",
+          "meaning": "manage with what's available"
+        }
+      ]
+    },
+    {
+      "text": "I've been keeping an eye on the situation, just in case.",
+      "glossary": [
+        {
+          "word": "keep an eye on",
+          "meaning": "watch carefully / monitor"
+        }
+      ]
+    },
+    {
+      "text": "Now that you mention it, I do remember something about that.",
+      "glossary": []
+    },
+    {
+      "text": "I don't want to jump the gun, but it's looking promising.",
+      "glossary": [
+        {
+          "word": "jump the gun",
+          "meaning": "act too soon / before the right time"
+        }
+      ]
+    },
+    {
+      "text": "Let's not get ahead of ourselves — there's still a lot to do.",
+      "glossary": [
+        {
+          "word": "get ahead of ourselves",
+          "meaning": "celebrate or plan too early"
+        }
+      ]
+    },
+    {
+      "text": "I'm willing to give it a shot if you are.",
+      "glossary": [
+        {
+          "word": "give it a shot",
+          "meaning": "try / attempt"
+        }
+      ]
+    },
+    {
+      "text": "To be honest, I'm not sure that's a hill worth dying on.",
+      "glossary": [
+        {
+          "word": "a hill worth dying on",
+          "meaning": "an issue important enough to fight hard for"
+        }
+      ]
+    },
+    {
+      "text": "I'd rather not get involved in this if I can help it.",
+      "glossary": [
+        {
+          "word": "if I can help it",
+          "meaning": "if I can avoid it"
+        }
+      ]
+    },
+    {
+      "text": "Could we possibly push the meeting back a bit?",
+      "glossary": [
+        {
+          "word": "push back",
+          "meaning": "postpone / reschedule for later"
+        }
+      ]
+    },
+    {
+      "text": "I'd hate to leave you hanging, so let me know either way.",
+      "glossary": [
+        {
+          "word": "leave someone hanging",
+          "meaning": "fail to give a needed response / keep someone waiting"
+        }
+      ]
+    },
+    {
+      "text": "You'd think they would have figured it out by now.",
+      "glossary": [
+        {
+          "word": "You'd think",
+          "meaning": "one would expect (used with mild frustration)"
+        }
+      ]
+    },
+    {
+      "text": "I'll admit, I didn't see that one coming.",
+      "glossary": [
+        {
+          "word": "see it coming",
+          "meaning": "anticipate / predict it"
+        }
+      ]
+    },
+    {
+      "text": "Looking on the bright side, at least we learned something.",
+      "glossary": [
+        {
+          "word": "look on the bright side",
+          "meaning": "focus on the positive"
+        }
+      ]
+    },
+    {
+      "text": "I'm trying to figure out where things went wrong.",
+      "glossary": [
+        {
+          "word": "figure out",
+          "meaning": "work out / understand"
+        }
+      ]
+    },
+    {
+      "text": "The way I see it, we have two reasonable options.",
+      "glossary": []
+    },
+    {
+      "text": "It's a tough call, but I'd lean towards the safer one.",
+      "glossary": [
+        {
+          "word": "a tough call",
+          "meaning": "a difficult decision"
+        }
+      ]
+    },
+    {
+      "text": "Sometimes you've just got to roll with the punches.",
+      "glossary": [
+        {
+          "word": "roll with the punches",
+          "meaning": "adapt to whatever happens / accept difficulties calmly"
+        }
+      ]
+    },
+    {
+      "text": "I don't want to come off as ungrateful, but I expected more.",
+      "glossary": [
+        {
+          "word": "come off as",
+          "meaning": "appear to be / give the impression of"
+        }
+      ]
+    },
+    {
+      "text": "That's water under the bridge as far as I'm concerned.",
+      "glossary": [
+        {
+          "word": "water under the bridge",
+          "meaning": "a past problem that doesn't matter anymore"
+        }
+      ]
+    },
+    {
+      "text": "I wouldn't lose any sleep over it if I were you.",
+      "glossary": [
+        {
+          "word": "lose sleep over",
+          "meaning": "worry about"
+        }
+      ]
+    },
+    {
+      "text": "They've been giving me the runaround for months.",
+      "glossary": [
+        {
+          "word": "give someone the runaround",
+          "meaning": "deliberately delay or avoid giving a clear answer"
+        }
+      ]
+    },
+    {
+      "text": "To put it bluntly, we can't afford another mistake.",
+      "glossary": [
+        {
+          "word": "to put it bluntly",
+          "meaning": "to say it directly / without softening"
+        }
+      ]
+    },
+    {
+      "text": "I'm in no rush — take your time.",
+      "glossary": []
+    },
+    {
+      "text": "Off the top of my head, I'd say around fifty.",
+      "glossary": [
+        {
+          "word": "off the top of my head",
+          "meaning": "without thinking carefully / as an estimate"
+        }
+      ]
+    },
+    {
+      "text": "I'd say it's worth giving them a second chance.",
+      "glossary": []
+    },
+    {
+      "text": "It crossed my mind, but I dismissed the idea pretty quickly.",
+      "glossary": [
+        {
+          "word": "it crossed my mind",
+          "meaning": "I briefly thought about it"
+        }
+      ]
+    },
+    {
+      "text": "I'm not going to pretend I understand everything yet.",
+      "glossary": []
+    },
+    {
+      "text": "Don't get me wrong — I'm not blaming you.",
+      "glossary": [
+        {
+          "word": "Don't get me wrong",
+          "meaning": "don't misunderstand what I'm saying"
+        }
+      ]
+    },
+    {
+      "text": "I might be reading between the lines, but it sounds personal.",
+      "glossary": [
+        {
+          "word": "read between the lines",
+          "meaning": "understand a hidden meaning / what isn't said directly"
+        }
+      ]
+    },
+    {
+      "text": "It depends on how strict they want to be about it.",
+      "glossary": []
+    },
+    {
+      "text": "I'd take that with a pinch of salt if I were you.",
+      "glossary": [
+        {
+          "word": "take it with a pinch of salt",
+          "meaning": "don't fully believe it / be sceptical"
+        }
+      ]
+    },
+    {
+      "text": "We should really nip this in the bud before it gets worse.",
+      "glossary": [
+        {
+          "word": "nip something in the bud",
+          "meaning": "stop it early before it grows into a problem"
+        }
+      ]
+    },
+    {
+      "text": "There's a thin line between being honest and being rude.",
+      "glossary": [
+        {
+          "word": "a thin line between",
+          "meaning": "a small difference separating two things"
+        }
+      ]
+    },
+    {
+      "text": "I'll be the first to admit I was wrong about that.",
+      "glossary": []
+    },
+    {
+      "text": "Let's not beat around the bush — what do you actually want?",
+      "glossary": [
+        {
+          "word": "beat around the bush",
+          "meaning": "avoid the main point / talk indirectly"
+        }
+      ]
+    },
+    {
+      "text": "He's been bending over backwards to make things right.",
+      "glossary": [
+        {
+          "word": "bend over backwards",
+          "meaning": "make a great effort to help / please someone"
+        }
+      ]
+    },
+    {
+      "text": "You can't please everyone, no matter how hard you try.",
+      "glossary": []
+    },
+    {
+      "text": "I get where you're coming from, but I still have my doubts.",
+      "glossary": []
+    },
+    {
+      "text": "I'd take a rain check, if that's alright with you.",
+      "glossary": [
+        {
+          "word": "take a rain check",
+          "meaning": "politely postpone an invitation to another time"
+        }
+      ]
+    },
+    {
+      "text": "Honestly, that sounds like more trouble than it's worth.",
+      "glossary": [
+        {
+          "word": "more trouble than it's worth",
+          "meaning": "not worth the effort it requires"
+        }
+      ]
+    },
+    {
+      "text": "We're not seeing eye to eye on this, are we?",
+      "glossary": [
+        {
+          "word": "see eye to eye",
+          "meaning": "agree / share the same view"
+        }
+      ]
+    },
+    {
+      "text": "Let's call it a day and pick it up tomorrow.",
+      "glossary": [
+        {
+          "word": "call it a day",
+          "meaning": "stop working for now"
+        },
+        {
+          "word": "pick it up",
+          "meaning": "resume / continue"
+        }
+      ]
     }
   ],
-  "lastUpdated": "2026-05-16T18:10:16.602Z"
+  "lastUpdated": "2026-05-16T23:50:35.086Z"
 }
