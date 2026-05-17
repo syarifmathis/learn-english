@@ -1310,9 +1310,11 @@ function escapeHtml(s) {
 }
 
 async function onPracticeClick() {
-  if (activeRecognizer) {
+  // Use the BUTTON state, not activeRecognizer — they can desync if a stale SDK event fires
+  const btn = $('practice-btn');
+  if (btn.classList.contains('recording')) {
     stopPractice();
-  } else {
+  } else if (!btn.disabled) {
     await startPractice();
   }
 }
@@ -1328,21 +1330,29 @@ async function startPractice() {
   const cur = currentSentence();
   if (!cur) return;
 
-  // Stop any playing audio before opening the mic — otherwise the mic
-  // picks up the TTS playback through the speakers and Azure never hears silence.
+  // Hard-reset any lingering session before starting a new one.
+  // Stale SDK events from a previous recognizer can otherwise corrupt this session.
+  if (activeRecognizer) {
+    try { activeRecognizer.close(); } catch {}
+    activeRecognizer = null;
+  }
+  if (recordingTimerId) { clearInterval(recordingTimerId); recordingTimerId = null; }
+
+  // Stop any playing audio so the mic doesn't pick it up
   if (currentAudio) {
-    try { currentAudio.pause(); currentAudio.currentTime = 0; } catch {}
+    try { currentAudio.pause(); currentAudio.src = ''; } catch {}
     currentAudio = null;
   }
   if ('speechSynthesis' in window) {
     try { speechSynthesis.cancel(); } catch {}
   }
-  // Let the audio system settle before opening the mic
-  await new Promise(r => setTimeout(r, 250));
+  // Let the audio system release before opening the mic
+  await new Promise(r => setTimeout(r, 300));
 
-  // Mic permission first
+  // Mic permission — immediately release the stream we get (SDK will request its own)
   try {
-    await navigator.mediaDevices.getUserMedia({ audio: true });
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    stream.getTracks().forEach(t => t.stop());
   } catch (e) {
     return toast('Microphone access denied');
   }
@@ -1385,41 +1395,48 @@ async function startPractice() {
   resultHandled = false;
   recordingStartMs = Date.now();
   setPracticeButtonState('recording', '⏹ Stop · 0.0s');
-  recordingTimerId = setInterval(() => {
-    if (!activeRecognizer) return;
+
+  // Self-terminating timer: stops itself if this session is no longer active
+  const myTimer = setInterval(() => {
+    if (activeRecognizer !== recognizer) {
+      clearInterval(myTimer);
+      return;
+    }
     const s = ((Date.now() - recordingStartMs) / 1000).toFixed(1);
     setPracticeButtonState('recording', `⏹ Stop · ${s}s`);
   }, 100);
+  recordingTimerId = myTimer;
 
-  // Helper: stop the SDK and reset UI in one shot, resilient to callback hangs
-  function finishSession(processingFn) {
-    if (recordingTimerId) { clearInterval(recordingTimerId); recordingTimerId = null; }
-    const r = activeRecognizer;
-    activeRecognizer = null;  // Clear immediately so a new Practice tap creates a fresh recognizer
+  // Helper: stop the SDK and reset UI in one shot, scoped to THIS recognizer
+  function finishThis(processingFn) {
+    // Stale-event guard: only proceed if this session is still the active one
+    if (activeRecognizer !== recognizer) return;
+    clearInterval(myTimer);
+    if (recordingTimerId === myTimer) recordingTimerId = null;
+    activeRecognizer = null;
     if (processingFn) {
       setPracticeButtonState('processing');
       try { processingFn(); } catch (e) { console.warn(e); }
     }
     setPracticeButtonState('idle');
-    // Background SDK cleanup — we don't care whether the callbacks fire
-    if (r) {
-      try {
-        r.stopContinuousRecognitionAsync(
-          () => { try { r.close(); } catch {} },
-          () => { try { r.close(); } catch {} }
-        );
-      } catch {
-        try { r.close(); } catch {}
-      }
+    // Background SDK cleanup — fire-and-forget
+    try {
+      recognizer.stopContinuousRecognitionAsync(
+        () => { try { recognizer.close(); } catch {} },
+        () => { try { recognizer.close(); } catch {} }
+      );
+    } catch {
+      try { recognizer.close(); } catch {}
     }
   }
 
   // Fires when Azure has a final recognized utterance
   recognizer.recognized = (s, e) => {
+    if (activeRecognizer !== recognizer) return;     // stale event from old session
     if (resultHandled || userStoppedRecording) return;
     if (e.result.reason === SDK.ResultReason.RecognizedSpeech) {
       resultHandled = true;
-      finishSession(() => {
+      finishThis(() => {
         const pronResult = SDK.PronunciationAssessmentResult.fromResult(e.result);
         showPronResult(e.result, pronResult);
       });
@@ -1427,17 +1444,19 @@ async function startPractice() {
   };
 
   recognizer.canceled = (s, e) => {
+    if (activeRecognizer !== recognizer) return;     // stale event
     if (resultHandled) return;
     if (e.reason === SDK.CancellationReason.Error && !userStoppedRecording) {
       toast('Azure error: ' + (e.errorDetails || 'unknown'));
     }
-    finishSession();
+    finishThis();
   };
 
   recognizer.sessionStopped = () => {
+    if (activeRecognizer !== recognizer) return;     // stale event
     if (resultHandled) return;
     if (!userStoppedRecording) toast('Could not detect speech — try again');
-    finishSession();
+    finishThis();
   };
 
   recognizer.startContinuousRecognitionAsync(
