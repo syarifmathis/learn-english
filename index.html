@@ -1502,8 +1502,34 @@ function normalizeForCompare(s) {
 }
 
 function tokenizeWords(text) {
-  // Capture words including contractions (I'd, can't, I've), keep lowercase
-  return (text.match(/[a-zA-Z][a-zA-Z']*[a-zA-Z]|[a-zA-Z]/g) || []).map(w => w.toLowerCase());
+  // Capture words (with contractions) AND numbers/digits, keep lowercase
+  return (text.match(/[a-zA-Z0-9][a-zA-Z0-9']*[a-zA-Z0-9]|[a-zA-Z0-9]/g) || []).map(w => w.toLowerCase());
+}
+
+// Normalize tokens so that digit forms and word forms compare as equal.
+// "1" ↔ "one", "21st" ↔ "twenty-first", contractions normalized.
+const NUM_WORDS = {
+  '0':'zero','1':'one','2':'two','3':'three','4':'four','5':'five',
+  '6':'six','7':'seven','8':'eight','9':'nine','10':'ten',
+  '11':'eleven','12':'twelve','13':'thirteen','14':'fourteen','15':'fifteen',
+  '16':'sixteen','17':'seventeen','18':'eighteen','19':'nineteen',
+  '20':'twenty','30':'thirty','40':'forty','50':'fifty','60':'sixty',
+  '70':'seventy','80':'eighty','90':'ninety','100':'hundred','1000':'thousand'
+};
+const WORD_TO_NUM = Object.fromEntries(Object.entries(NUM_WORDS).map(([k,v]) => [v,k]));
+
+function normalizeToken(t) {
+  if (!t) return t;
+  let n = String(t).toLowerCase().replace(/[''']/g, "'");
+  // Digit → word
+  if (/^\d+$/.test(n) && NUM_WORDS[n]) return NUM_WORDS[n];
+  // Word → also produce its digit form so both sides normalize the same way
+  if (WORD_TO_NUM[n]) return n; // already in canonical word form
+  return n;
+}
+
+function tokensEqual(a, b) {
+  return normalizeToken(a) === normalizeToken(b);
 }
 
 // Word-level alignment using Longest Common Subsequence.
@@ -1513,14 +1539,14 @@ function alignWords(refWords, heardWords) {
   const dp = Array.from({length: m+1}, () => new Array(n+1).fill(0));
   for (let i = 1; i <= m; i++) {
     for (let j = 1; j <= n; j++) {
-      if (refWords[i-1] === heardWords[j-1]) dp[i][j] = dp[i-1][j-1] + 1;
+      if (tokensEqual(refWords[i-1], heardWords[j-1])) dp[i][j] = dp[i-1][j-1] + 1;
       else dp[i][j] = Math.max(dp[i-1][j], dp[i][j-1]);
     }
   }
   const ops = [];
   let i = m, j = n;
   while (i > 0 || j > 0) {
-    if (i > 0 && j > 0 && refWords[i-1] === heardWords[j-1]) {
+    if (i > 0 && j > 0 && tokensEqual(refWords[i-1], heardWords[j-1])) {
       ops.push({ type: 'match', word: refWords[i-1] }); i--; j--;
     } else if (j > 0 && (i === 0 || dp[i][j-1] >= dp[i-1][j])) {
       ops.push({ type: 'extra', word: heardWords[j-1] }); j--;
@@ -1567,7 +1593,8 @@ function showPronResult(result, pronResult) {
   const matchPct = refTokens.length ? Math.round((matched / refTokens.length) * 100) : 0;
   const hasMismatch = diffOps.some(o => o.type !== 'match');
 
-  // Parse Azure's per-word phoneme scores for words it heard
+  // Parse Azure's per-word phoneme scores. Key by normalized form so
+  // "one" and "1" map to the same score.
   let azureScoreMap = new Map();
   try {
     const SDK = window.SpeechSDK;
@@ -1575,7 +1602,7 @@ function showPronResult(result, pronResult) {
     const data = JSON.parse(jsonStr);
     (data?.NBest?.[0]?.Words || []).forEach(w => {
       if (w.PronunciationAssessment?.ErrorType === 'Omission') return;
-      azureScoreMap.set(w.Word.toLowerCase(), w.PronunciationAssessment?.AccuracyScore ?? 0);
+      azureScoreMap.set(normalizeToken(w.Word), w.PronunciationAssessment?.AccuracyScore ?? 0);
     });
   } catch (e) { console.warn('parse detail failed', e); }
 
@@ -1617,7 +1644,7 @@ function showPronResult(result, pronResult) {
   html += '<div class="word-scores">';
   diffOps.forEach(op => {
     if (op.type === 'match') {
-      const s = azureScoreMap.get(op.word) ?? 100;
+      const s = azureScoreMap.get(normalizeToken(op.word)) ?? 100;
       html += `<span class="word-score ${cls(s)}" title="${Math.round(s)}/100">${escapeHtml(op.word)}</span>`;
     } else if (op.type === 'missing') {
       html += `<span class="word-score missing" title="You didn't say this">(${escapeHtml(op.word)})</span>`;
