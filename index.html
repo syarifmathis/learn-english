@@ -1391,48 +1391,53 @@ async function startPractice() {
     setPracticeButtonState('recording', `⏹ Stop · ${s}s`);
   }, 100);
 
+  // Helper: stop the SDK and reset UI in one shot, resilient to callback hangs
+  function finishSession(processingFn) {
+    if (recordingTimerId) { clearInterval(recordingTimerId); recordingTimerId = null; }
+    const r = activeRecognizer;
+    activeRecognizer = null;  // Clear immediately so a new Practice tap creates a fresh recognizer
+    if (processingFn) {
+      setPracticeButtonState('processing');
+      try { processingFn(); } catch (e) { console.warn(e); }
+    }
+    setPracticeButtonState('idle');
+    // Background SDK cleanup — we don't care whether the callbacks fire
+    if (r) {
+      try {
+        r.stopContinuousRecognitionAsync(
+          () => { try { r.close(); } catch {} },
+          () => { try { r.close(); } catch {} }
+        );
+      } catch {
+        try { r.close(); } catch {}
+      }
+    }
+  }
+
   // Fires when Azure has a final recognized utterance
   recognizer.recognized = (s, e) => {
     if (resultHandled || userStoppedRecording) return;
     if (e.result.reason === SDK.ResultReason.RecognizedSpeech) {
       resultHandled = true;
-      if (recordingTimerId) { clearInterval(recordingTimerId); recordingTimerId = null; }
-      setPracticeButtonState('processing');
-      try {
+      finishSession(() => {
         const pronResult = SDK.PronunciationAssessmentResult.fromResult(e.result);
         showPronResult(e.result, pronResult);
-      } catch (err) {
-        toast('Parse error: ' + err.message);
-      }
-      // Stop recognition now that we have our one result
-      try {
-        recognizer.stopContinuousRecognitionAsync(
-          () => { cleanupRecognizer(); setPracticeButtonState('idle'); },
-          () => { cleanupRecognizer(); setPracticeButtonState('idle'); }
-        );
-      } catch {
-        cleanupRecognizer();
-        setPracticeButtonState('idle');
-      }
+      });
     }
   };
 
   recognizer.canceled = (s, e) => {
-    if (recordingTimerId) { clearInterval(recordingTimerId); recordingTimerId = null; }
+    if (resultHandled) return;
     if (e.reason === SDK.CancellationReason.Error && !userStoppedRecording) {
       toast('Azure error: ' + (e.errorDetails || 'unknown'));
     }
-    cleanupRecognizer();
-    setPracticeButtonState('idle');
+    finishSession();
   };
 
   recognizer.sessionStopped = () => {
-    if (recordingTimerId) { clearInterval(recordingTimerId); recordingTimerId = null; }
-    if (!resultHandled && !userStoppedRecording) {
-      toast('Could not detect speech — try again');
-    }
-    cleanupRecognizer();
-    setPracticeButtonState('idle');
+    if (resultHandled) return;
+    if (!userStoppedRecording) toast('Could not detect speech — try again');
+    finishSession();
   };
 
   recognizer.startContinuousRecognitionAsync(
@@ -1448,25 +1453,28 @@ async function startPractice() {
 function stopPractice() {
   userStoppedRecording = true;
   if (recordingTimerId) { clearInterval(recordingTimerId); recordingTimerId = null; }
-  if (activeRecognizer) {
+  const r = activeRecognizer;
+  activeRecognizer = null;            // Clear immediately so UI is unblocked
+  setPracticeButtonState('idle');     // Reset UI immediately, don't wait for SDK
+  if (r) {
+    // Background cleanup — fire-and-forget
     try {
-      activeRecognizer.stopContinuousRecognitionAsync(
-        () => { cleanupRecognizer(); setPracticeButtonState('idle'); },
-        () => { cleanupRecognizer(); setPracticeButtonState('idle'); }
+      r.stopContinuousRecognitionAsync(
+        () => { try { r.close(); } catch {} },
+        () => { try { r.close(); } catch {} }
       );
     } catch {
-      cleanupRecognizer();
-      setPracticeButtonState('idle');
+      try { r.close(); } catch {}
     }
-  } else {
-    setPracticeButtonState('idle');
   }
 }
 
 function cleanupRecognizer() {
+  // Kept for backward-compat with any remaining callers; finishSession is the main path now.
   if (activeRecognizer) {
-    try { activeRecognizer.close(); } catch {}
+    const r = activeRecognizer;
     activeRecognizer = null;
+    try { r.close(); } catch {}
   }
 }
 
