@@ -83,6 +83,9 @@
     },
     "It's worth keeping track of your progress, even if it feels a bit silly at first.": {
       "status": "learning"
+    },
+    "It's been said that you become the average of the five people you spend the most time with.": {
+      "status": "learning"
     }
   },
   "customSentences": [
@@ -801,5 +804,5 @@
       ]
     }
   ],
-  "lastUpdated": "2026-05-17T16:31:11.609Z"
+  "lastUpdated": "2026-05-17T16:32:33.783Z"
 }
