@@ -802,7 +802,610 @@
           "meaning": "resume / continue"
         }
       ]
+    },
+    {
+      "text": "Thanks for having me — I'd like to walk you through the architecture work we've done for Kapalsantai.",
+      "glossary": [
+        {
+          "word": "walk you through",
+          "meaning": "guide / explain step by step"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "Just to give you some context, Kapalsantai is an online boat tour marketplace based in Indonesia.",
+      "glossary": [
+        {
+          "word": "to give you some context",
+          "meaning": "to provide background"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "Before we dive into the details, let me quickly set the scene.",
+      "glossary": [
+        {
+          "word": "dive into",
+          "meaning": "start examining in depth"
+        },
+        {
+          "word": "set the scene",
+          "meaning": "provide background / introduce a topic"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "The platform grew pretty organically, which means a lot of decisions were never written down.",
+      "glossary": [
+        {
+          "word": "grew organically",
+          "meaning": "developed gradually without a master plan"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "What we set out to do was take a step back and reconstruct the architecture deliberately.",
+      "glossary": [
+        {
+          "word": "set out to do",
+          "meaning": "intended to do (from the start)"
+        },
+        {
+          "word": "take a step back",
+          "meaning": "pause and look at the bigger picture"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "We used the arc42 framework because it gave us a structured way to capture both the decisions and the trade-offs.",
+      "glossary": [
+        {
+          "word": "capture",
+          "meaning": "record / document"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "At a high level, we connect international tourists with local boat operators in the Labuan Bajo region.",
+      "glossary": [
+        {
+          "word": "at a high level",
+          "meaning": "in broad terms / generally"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "The honest reality is, technical debt had been piling up silently, and nobody had a clear picture of why.",
+      "glossary": [
+        {
+          "word": "the honest reality",
+          "meaning": "to be truthful"
+        },
+        {
+          "word": "pile up",
+          "meaning": "accumulate"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "So with that in mind, let's look at where we are today.",
+      "glossary": [
+        {
+          "word": "with that in mind",
+          "meaning": "considering that / keeping that in view"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "Moving on, I'd like to spend a few minutes on the quality attributes.",
+      "glossary": [
+        {
+          "word": "spend a few minutes on",
+          "meaning": "discuss briefly"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "Now, this is where it gets interesting.",
+      "glossary": [],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "I'll come back to that point in a moment — bear with me.",
+      "glossary": [
+        {
+          "word": "bear with me",
+          "meaning": "please be patient"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "Let me pause there for a second and unpack what this actually means.",
+      "glossary": [
+        {
+          "word": "unpack",
+          "meaning": "explain / break down"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "If we zoom out a bit, the bigger picture looks like this.",
+      "glossary": [
+        {
+          "word": "zoom out",
+          "meaning": "look at the broader view"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "I'll skim over the details here, but the key takeaway is on the next slide.",
+      "glossary": [
+        {
+          "word": "skim over",
+          "meaning": "cover quickly / not go into depth"
+        },
+        {
+          "word": "key takeaway",
+          "meaning": "main point to remember"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "Let's shift gears and talk about the proposed solution.",
+      "glossary": [
+        {
+          "word": "shift gears",
+          "meaning": "change topic / approach"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "Before I move on, are we all on the same page so far?",
+      "glossary": [
+        {
+          "word": "on the same page",
+          "meaning": "in agreement / shared understanding"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "Out of the nine ISO 25010 categories, we deliberately picked just two as Priority 1.",
+      "glossary": [
+        {
+          "word": "out of",
+          "meaning": "from a group of"
+        },
+        {
+          "word": "deliberately",
+          "meaning": "intentionally / on purpose"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "The reasoning behind that is simple — you can't optimise for everything at once.",
+      "glossary": [
+        {
+          "word": "optimise for everything",
+          "meaning": "try to make everything equally good"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "Security ended up being our top driver, particularly around payment data.",
+      "glossary": [
+        {
+          "word": "ended up being",
+          "meaning": "turned out to be"
+        },
+        {
+          "word": "driver",
+          "meaning": "main factor influencing decisions"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "Performance Efficiency came in a close second, mainly because of the search experience.",
+      "glossary": [
+        {
+          "word": "came in a close second",
+          "meaning": "was the second most important"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "Think of the quality tree as a way of breaking down what 'good' actually looks like.",
+      "glossary": [
+        {
+          "word": "think of X as Y",
+          "meaning": "consider X to be Y"
+        },
+        {
+          "word": "break down",
+          "meaning": "divide into smaller parts"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "An ADR — or Architecture Decision Record — is basically a one-pager that captures why we made a particular call.",
+      "glossary": [
+        {
+          "word": "one-pager",
+          "meaning": "a short, one-page document"
+        },
+        {
+          "word": "make a call",
+          "meaning": "make a decision"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "What we're really trying to do here is make the trade-offs visible.",
+      "glossary": [
+        {
+          "word": "trade-off",
+          "meaning": "compromise between competing goals"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "In plain English, if it's not written down, it didn't happen.",
+      "glossary": [
+        {
+          "word": "in plain English",
+          "meaning": "in simple, non-technical terms"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "We've quantified each scenario using a weighted score, so the priorities aren't just opinions.",
+      "glossary": [],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "Confidentiality and Authenticity are the two sub-attributes we picked under Security.",
+      "glossary": [],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "We had to weigh up speed of delivery against long-term maintainability.",
+      "glossary": [
+        {
+          "word": "weigh up",
+          "meaning": "carefully consider / compare"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "There's a genuine trade-off here between flexibility and operational complexity.",
+      "glossary": [],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "Looking back, we'd probably do it differently — but at the time, it made sense.",
+      "glossary": [
+        {
+          "word": "looking back",
+          "meaning": "in hindsight"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "If you ask me, this was the most important call we made during the whole process.",
+      "glossary": [],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "We deliberately chose to keep things simple, even though it meant cutting some corners.",
+      "glossary": [
+        {
+          "word": "cut corners",
+          "meaning": "skip steps to save time/effort"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "The alternative would have been more elegant, but it just wasn't worth the overhead.",
+      "glossary": [
+        {
+          "word": "overhead",
+          "meaning": "extra time/cost/complexity"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "Frankly, this is the kind of decision you can only second-guess in hindsight.",
+      "glossary": [
+        {
+          "word": "second-guess",
+          "meaning": "question / doubt after the fact"
+        },
+        {
+          "word": "in hindsight",
+          "meaning": "looking back / with the benefit of later knowledge"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "We picked Next.js over Angular mainly for developer productivity reasons.",
+      "glossary": [],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "Going with a managed database saved us a lot of headaches around backups and patching.",
+      "glossary": [
+        {
+          "word": "save someone headaches",
+          "meaning": "avoid problems/stress for them"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "It's a balancing act between getting things shipped and keeping the system clean.",
+      "glossary": [
+        {
+          "word": "a balancing act",
+          "meaning": "trying to manage competing priorities"
+        },
+        {
+          "word": "get things shipped",
+          "meaning": "deliver / release software"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "Perahuku is our dedicated provider portal — it's where boat operators manage their day-to-day.",
+      "glossary": [],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "Right now, providers update their availability manually, and that's where most of the friction lives.",
+      "glossary": [
+        {
+          "word": "friction",
+          "meaning": "difficulty / source of slowness"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "Instant booking is what we're moving towards, but provider adoption isn't quite there yet.",
+      "glossary": [
+        {
+          "word": "isn't quite there yet",
+          "meaning": "not fully achieved / still developing"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "We're trying to bridge the gap between how customers want to book and how providers actually operate.",
+      "glossary": [
+        {
+          "word": "bridge the gap",
+          "meaning": "connect / reconcile two different things"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "There's a real usability issue with the calendar — operators just aren't using it the way we'd hoped.",
+      "glossary": [],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "For now, we're treating Perahuku as an internal system under study rather than baking it deeply into the architecture.",
+      "glossary": [
+        {
+          "word": "bake into",
+          "meaning": "integrate as a fundamental part of"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "The booking and payment object lifecycles are really at the heart of what we're modelling.",
+      "glossary": [
+        {
+          "word": "at the heart of",
+          "meaning": "central to"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "We're going to dig deeper into the payment flow because that's where the regulatory risk sits.",
+      "glossary": [
+        {
+          "word": "dig deeper",
+          "meaning": "investigate in more detail"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "The current state, or IST, is what's running in production today.",
+      "glossary": [
+        {
+          "word": "IST / SOLL",
+          "meaning": "German for 'current' / 'target' (often used in architecture)"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "The proposed state, the SOLL, is what we're aiming towards over the next few quarters.",
+      "glossary": [
+        {
+          "word": "aim towards",
+          "meaning": "work in the direction of"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "I'll be honest — there's still a fair bit we haven't pinned down.",
+      "glossary": [
+        {
+          "word": "a fair bit",
+          "meaning": "a considerable amount"
+        },
+        {
+          "word": "pin down",
+          "meaning": "decide / settle / make definite"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "This part is more of a work in progress than a finished design.",
+      "glossary": [
+        {
+          "word": "work in progress",
+          "meaning": "something not yet complete"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "We're aware this isn't perfect, but it's the best we've got given the budget constraints.",
+      "glossary": [
+        {
+          "word": "given the constraints",
+          "meaning": "considering the limitations"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "Hand on heart, this is the area where we're least confident.",
+      "glossary": [
+        {
+          "word": "hand on heart",
+          "meaning": "honestly / sincerely"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "Availability is something we know is going to bite us eventually, but it's not a priority today.",
+      "glossary": [
+        {
+          "word": "come back to bite you",
+          "meaning": "cause problems later"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "That's a fair question — let me think about it for a second.",
+      "glossary": [
+        {
+          "word": "a fair question",
+          "meaning": "a reasonable question"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "Honestly, I don't have a definitive answer to that right now.",
+      "glossary": [],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "Could you walk me through what you're trying to get at?",
+      "glossary": [
+        {
+          "word": "get at",
+          "meaning": "be implying / suggesting"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "Let me come back to that one after I've had a chance to check the details.",
+      "glossary": [],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "I'd rather get back to you with a proper answer than make something up on the spot.",
+      "glossary": [
+        {
+          "word": "on the spot",
+          "meaning": "immediately / without preparation"
+        },
+        {
+          "word": "make something up",
+          "meaning": "invent an answer"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "Just to make sure I've understood you correctly — are you asking about the payment side or the booking side?",
+      "glossary": [],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "To wrap things up, the main takeaway is this: architecture isn't a one-time effort, it's an ongoing conversation.",
+      "glossary": [
+        {
+          "word": "wrap things up",
+          "meaning": "conclude / finish"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "If there's one thing I'd like you to remember, it's that making the trade-offs visible is half the battle.",
+      "glossary": [
+        {
+          "word": "half the battle",
+          "meaning": "a major part of the difficulty"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "Thanks for sticking with me — I'm happy to take any questions you've got.",
+      "glossary": [
+        {
+          "word": "stick with me",
+          "meaning": "stay attentive / be patient with me"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
     }
   ],
-  "lastUpdated": "2026-05-17T16:32:33.783Z"
+  "lastUpdated": "2026-05-18T08:14:16.993Z"
 }
