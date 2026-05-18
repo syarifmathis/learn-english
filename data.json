@@ -86,6 +86,96 @@
     },
     "It's been said that you become the average of the five people you spend the most time with.": {
       "status": "learning"
+    },
+    "We deliberately limited ourselves to two because if everything's a priority, nothing is. Security and Performance Efficiency are the attributes that most directly shape architectural decisions for our current phase — the others stay on the radar, but they don't drive design.": {
+      "note": "Q: Why did you elevate only two quality attributes to Priority 1?"
+    },
+    "Honestly, it came down to a mix of factors. Server-side rendering matters for SEO on a travel site, the team had more hands-on React experience, and the ecosystem fits where we're going. Angular felt like overkill, and Vue lost out on the team familiarity side.": {
+      "note": "Q: Why Next.js over Angular or Vue?"
+    },
+    "For a team of our size, microservices would have been overkill. We'd have spent more time on infrastructure than on features. We've kept the monolith but drawn clear internal boundaries, so we can split things out later if scale demands it.": {
+      "note": "Q: Why not break this up into microservices?"
+    },
+    "Yes, we use DDD selectively — particularly around booking and payment, which are the parts where the domain complexity is highest. We didn't apply it across the board because forcing DDD on simpler areas would have added more friction than value.": {
+      "note": "Q: Have you considered Domain-Driven Design seriously?"
+    },
+    "Fair point — availability is definitely on our radar, and I'd be the first to admit it's likely to bite us eventually. For now, the budget constraints mean we accept a degree of downtime risk, but we've documented this as a known sensitivity point.": {
+      "note": "Q: Availability seems pretty important for a tourism platform. Why isn't it Priority 1?"
+    },
+    "Payment is modelled as a state machine with an explicit refund flow built in. When a booking moves to cancelled, the payment object transitions through its reimbursement states and the customer gets refunded automatically, with the operator notified.": {
+      "note": "Q: How do you handle payment reimbursement when a booking falls through?"
+    },
+    "Self-hosting would have meant carrying the operational burden of backups, patching, and failover ourselves. For a small team, the managed option lets us sleep at night and focus on features. It costs more in dollars, but less in stress.": {
+      "note": "Q: Why a managed database rather than self-hosting PostgreSQL?"
+    },
+    "We've kept costs deliberately low by sticking to managed services where the price-to-pain ratio is good, and self-managing only where we get real leverage. Cloud spend is a few hundred dollars a month at our current scale.": {
+      "note": "Q: What's your cost story?"
+    },
+    "Right now, Perahuku is fairly loosely coupled — it feeds availability data into the booking platform asynchronously. We've made a deliberate choice to treat it as a system under study rather than baking it deeply into the main architecture.": {
+      "note": "Q: How does Perahuku integrate with the main booking platform?"
+    },
+    "Good question — we've flagged both as constraints rather than dependencies we control. If one goes down, the affected channel goes down with it. The architecture is structured so we could swap in an alternative provider relatively painlessly, but there'd still be a window of disruption.": {
+      "note": "Q: What happens if a third-party service like Sendgrid or WhatsApp disappears?"
+    },
+    "Honestly, peak season is something we're going to have to address head-on next year. Today we lean on the elasticity of the cloud provider, but the database is the bottleneck we'll hit first. We've sketched a caching strategy that should buy us a lot of headroom.": {
+      "note": "Q: How do you cope with peak season load?"
+    },
+    "Confidentiality is one of the two top quality attributes for exactly that reason. Personal data is encrypted at rest and in transit, access is role-based, and we never log sensitive fields. Payment data we deliberately keep out of our database entirely — it lives with the payment processor.": {
+      "note": "Q: How do you protect tourist personal data?"
+    },
+    "I'll be honest — DR is still a work in progress. We have automated backups with point-in-time recovery, but we haven't done a full restore drill yet. That's on the roadmap for this quarter, and I'd put it at the top of the residual risk list.": {
+      "note": "Q: What's your disaster recovery plan?"
+    },
+    "We worked through them with the operators and a small group of regular customers. The scenarios come straight from real pain points they raised — we didn't invent them in a vacuum. That's also why we used the Bass et al. template, to keep them concrete and measurable.": {
+      "note": "Q: How did you validate the quality scenarios with stakeholders?"
+    },
+    "Probably keeping Perahuku as a separate system under study rather than merging it into the main platform. It would have been cleaner architecturally to bring them together, but Perahuku is still finding its audience, and locking it in too early would have been a mistake.": {
+      "note": "Q: What was the most controversial decision you made?"
+    },
+    "We did consider that early on, especially for the booking side. But the payment integration, the regulatory side, and the operator workflows all push beyond what no-code platforms handle gracefully. We'd have hit the limits within a few months.": {
+      "note": "Q: Couldn't this have just been a no-code or low-code solution?"
+    },
+    "We track the scenarios themselves — each one has a measurable target. Beyond that, we look at lead time for changes, incident rate, and how often the team has to argue about how things should be done. If those metrics trend the right way, the architecture is doing its job.": {
+      "note": "Q: How do you measure whether the architecture is succeeding?"
+    },
+    "Honestly, we don't have a formal one yet, and I'd rather be upfront about that than pretend otherwise. What we do have is documentation of where the debt lives, and a habit of paying small amounts down as we touch each area. The architecture work itself is a big down-payment.": {
+      "note": "Q: Do you have a tech debt strategy?"
+    },
+    "We're English-and-Indonesian for now, which covers our main markets. The architecture supports adding languages, but we haven't built it out beyond those two. Currency is handled separately — we always price in IDR and convert at checkout.": {
+      "note": "Q: How do you handle internationalisation?"
+    },
+    "Arc42 felt like the right balance of structure and flexibility for our context. C4 is excellent for visualising structure, but arc42 covers decisions, trade-offs, risks, and quality scenarios in one place. For a transferarbeit, that breadth mattered more than diagram polish.": {
+      "note": "Q: Why arc42 instead of C4 or another framework?"
+    },
+    "We use optimistic locking on the availability records. If two requests collide, the second one fails and the customer is gently told to pick another slot. It's rare in practice because the time windows are narrow, but the safety net is there.": {
+      "note": "Q: How do you handle a booking conflict — two customers booking the same slot?"
+    },
+    "We're a small team — two engineers and a designer, with operations support shared across the business. That team size has shaped pretty much every architectural call we've made.": {
+      "note": "Q: How big is your team?"
+    },
+    "The initial system was essentially a prototype that grew. We didn't start with formal prototyping, which is honestly part of why we're doing this architecture work now — to give a system that grew organically the deliberate shape it never had.": {
+      "note": "Q: Did you do any formal prototyping or was it all production from day one?"
+    },
+    "We rely on eventual consistency. Availability updates from Perahuku flow into the booking system asynchronously, and we accept a short lag window. For anything safety-critical — payments, refunds — we use synchronous calls with idempotency keys.": {
+      "note": "Q: How do you keep data consistent between Perahuku and the booking system?"
+    },
+    "Briefly. The cold-start latency was a concern for the search and booking paths, and the cost model gets unpredictable above a certain volume. We've kept it as a possible direction for specific workloads, but not as the default.": {
+      "note": "Q: Have you considered going serverless?"
+    },
+    "Search is one of our performance-critical paths. Right now it's database-backed with the right indexes, which gets us by at current scale. If volume grows, the plan is to introduce a search index — but we haven't pulled that trigger yet.": {
+      "note": "Q: How does the search work?"
+    },
+    "For European customers, yes — that was a non-negotiable from the start. We have a data processing record, right-to-erasure flows are in place, and personal data retention is bounded. The architecture had to support this from day one.": {
+      "note": "Q: Are you GDPR compliant?"
+    },
+    "The elephant in the room is probably that we have a single point of failure at the database layer. Multi-region replication is on the roadmap, but it's not implemented today, and a full outage at our cloud provider would take us down with it.": {
+      "note": "Q: What's the elephant in the room here?"
+    },
+    "Today, onboarding is largely a manual process — we sit down with each operator, walk them through Perahuku, and help them set up their first tours. It doesn't scale, but at our current operator count it lets us catch quality issues early.": {
+      "note": "Q: How do operators get onboarded?"
+    },
+    "Realistically, we'd like to see Kapalsantai become the go-to platform for boat tourism in eastern Indonesia, with operators in two or three new regions and a much more automated booking flow. The architecture decisions we're making now are aimed at making that growth feasible.": {
+      "note": "Q: Where do you see Kapalsantai in two years?"
     }
   },
   "customSentences": [
@@ -1405,7 +1495,1305 @@
         }
       ],
       "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "The context view essentially shows who the system talks to and what flows in and out.",
+      "glossary": [
+        {
+          "word": "talks to",
+          "meaning": "interacts with / communicates with"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "The building block view is where we break the system down into its main components.",
+      "glossary": [
+        {
+          "word": "break the system down",
+          "meaning": "divide into smaller, manageable parts"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "We've kept the runtime view focused on the happy path — error handling branches off separately.",
+      "glossary": [
+        {
+          "word": "happy path",
+          "meaning": "the normal flow when everything works"
+        },
+        {
+          "word": "branch off",
+          "meaning": "diverge / split away"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "On the deployment view, you can see what runs where and how it's all wired up.",
+      "glossary": [
+        {
+          "word": "wired up",
+          "meaning": "connected together"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "We deliberately kept the diagrams at a fairly abstract level so they don't go out of date overnight.",
+      "glossary": [
+        {
+          "word": "fairly",
+          "meaning": "moderately / reasonably"
+        },
+        {
+          "word": "go out of date",
+          "meaning": "become outdated"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "If you want the full detail, that's all in the appendix — feel free to dig in afterwards.",
+      "glossary": [
+        {
+          "word": "feel free to",
+          "meaning": "you're welcome to"
+        },
+        {
+          "word": "dig in",
+          "meaning": "examine in detail"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "What I'm showing you here is the SOLL state — the IST is in the backup slides.",
+      "glossary": [
+        {
+          "word": "backup slides",
+          "meaning": "extra slides for reference, not in the main flow"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "The boundaries of the system are drawn around what we actively control.",
+      "glossary": [
+        {
+          "word": "actively control",
+          "meaning": "directly manage / own"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "Anything sitting outside that boundary, we treat as a black box.",
+      "glossary": [
+        {
+          "word": "black box",
+          "meaning": "something whose internals we don't see/care about"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "I want to be upfront that some of the diagrams are still evolving as we get more feedback.",
+      "glossary": [
+        {
+          "word": "upfront",
+          "meaning": "honest / direct from the start"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "We used DDD selectively, mostly at the level where booking and payment interact.",
+      "glossary": [
+        {
+          "word": "selectively",
+          "meaning": "in a chosen / limited way"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "Bounded contexts gave us a way to draw clear lines between different parts of the domain.",
+      "glossary": [
+        {
+          "word": "draw clear lines",
+          "meaning": "make distinct separations"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "Within a bounded context, the team can speak its own language without stepping on anyone's toes.",
+      "glossary": [
+        {
+          "word": "step on someone's toes",
+          "meaning": "intrude on / cause problems for"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "Booking and payment are two separate aggregates, each with its own lifecycle.",
+      "glossary": [
+        {
+          "word": "aggregate",
+          "meaning": "a cluster of related domain objects treated as one unit (DDD)"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "We avoid sharing state directly between aggregates — communication goes through events.",
+      "glossary": [
+        {
+          "word": "go through",
+          "meaning": "pass via / be handled by"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "The ubiquitous language is something we've tried to nail down with the operators themselves.",
+      "glossary": [
+        {
+          "word": "nail down",
+          "meaning": "establish firmly / pin down"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "There's no point inventing fancy terminology if the business doesn't recognise it.",
+      "glossary": [
+        {
+          "word": "there's no point",
+          "meaning": "it's pointless / not worth doing"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "A booking goes through several states — pending, confirmed, paid, completed, refunded.",
+      "glossary": [
+        {
+          "word": "go through",
+          "meaning": "pass through (states)"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "State-based management lets us reason clearly about what's allowed at each step.",
+      "glossary": [
+        {
+          "word": "reason about",
+          "meaning": "think through / analyse"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "If you're not careful with aggregates, you end up with a distributed monolith.",
+      "glossary": [
+        {
+          "word": "end up with",
+          "meaning": "finish with / result in"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "We picked PostgreSQL because it gave us the most flexibility without locking us into a vendor.",
+      "glossary": [
+        {
+          "word": "lock you in",
+          "meaning": "tie you to / make you dependent on"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "Going with a managed database lets us sleep at night.",
+      "glossary": [
+        {
+          "word": "sleep at night",
+          "meaning": "feel safe / not worry"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "Backups, patching, failover — all of that is handled for us, which frees up the team.",
+      "glossary": [
+        {
+          "word": "free up",
+          "meaning": "release / make available"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "We're not at a scale where sharding makes sense yet.",
+      "glossary": [],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "Schema changes go through migrations — we don't touch production directly.",
+      "glossary": [
+        {
+          "word": "touch production directly",
+          "meaning": "modify live systems without proper process"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "JSON columns have been a lifesaver for some of the more flexible fields.",
+      "glossary": [
+        {
+          "word": "a lifesaver",
+          "meaning": "extremely helpful / something that solves a problem"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "We're using soft deletes everywhere — nothing actually gets removed from the database.",
+      "glossary": [
+        {
+          "word": "soft delete",
+          "meaning": "marking a record as deleted without removing it"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "If we ever outgrow the current setup, we've left room to split things out later.",
+      "glossary": [
+        {
+          "word": "outgrow",
+          "meaning": "become too big for"
+        },
+        {
+          "word": "split things out",
+          "meaning": "separate components"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "We've stuck with REST for now because everyone on the team is comfortable with it.",
+      "glossary": [
+        {
+          "word": "stick with",
+          "meaning": "continue using"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "GraphQL was tempting, but the added complexity wasn't going to pay off at our scale.",
+      "glossary": [
+        {
+          "word": "pay off",
+          "meaning": "produce a worthwhile benefit"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "Every endpoint is versioned, so we can evolve the API without breaking existing clients.",
+      "glossary": [],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "Authentication is handled by JWT tokens with a short expiry.",
+      "glossary": [],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "We try to keep the API surface as small as possible — fewer endpoints means fewer attack vectors.",
+      "glossary": [
+        {
+          "word": "API surface",
+          "meaning": "the set of exposed endpoints"
+        },
+        {
+          "word": "attack vector",
+          "meaning": "path an attacker could exploit"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "OpenAPI specs are the source of truth — the code generates from them.",
+      "glossary": [
+        {
+          "word": "source of truth",
+          "meaning": "the authoritative / definitive version"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "Rate limiting is in place to keep the system honest under load.",
+      "glossary": [
+        {
+          "word": "keep something honest",
+          "meaning": "keep within its limits / prevent misuse"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "Idempotency keys make sure that retrying a payment request doesn't double-charge anyone.",
+      "glossary": [
+        {
+          "word": "idempotency",
+          "meaning": "property that repeating an operation gives the same result"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "We went with Next.js because server-side rendering matters for SEO on a travel site.",
+      "glossary": [
+        {
+          "word": "go with",
+          "meaning": "choose / select"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "Vue was on the shortlist, but the team had more hands-on experience with React.",
+      "glossary": [
+        {
+          "word": "on the shortlist",
+          "meaning": "among the final candidates"
+        },
+        {
+          "word": "hands-on experience",
+          "meaning": "practical experience"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "Angular felt like overkill for what we actually need.",
+      "glossary": [
+        {
+          "word": "overkill",
+          "meaning": "more than necessary"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "We render the listing pages on the server so tourists don't see a blank screen first.",
+      "glossary": [
+        {
+          "word": "blank screen",
+          "meaning": "empty page (typical of slow client-side apps)"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "The booking flow is mostly client-side because it's highly interactive.",
+      "glossary": [],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "We don't ship any framework that we can't justify with a concrete need.",
+      "glossary": [
+        {
+          "word": "ship",
+          "meaning": "deliver / include in production"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "Performance budgets are something we actually enforce, not just talk about.",
+      "glossary": [
+        {
+          "word": "enforce",
+          "meaning": "make sure rules are followed"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "Mobile is where most of our traffic comes from, so we design for that first.",
+      "glossary": [
+        {
+          "word": "design for that first",
+          "meaning": "prioritise that case"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "The booking process is the spine of the platform — everything else hangs off it.",
+      "glossary": [
+        {
+          "word": "the spine of",
+          "meaning": "the central, supporting part"
+        },
+        {
+          "word": "hang off",
+          "meaning": "depend on / connect to"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "On this BPMN diagram, you can see the happy path going straight across.",
+      "glossary": [
+        {
+          "word": "going straight across",
+          "meaning": "running in a straight line"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "Anything that's not the happy path branches off — that keeps the diagram readable.",
+      "glossary": [],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "Payment confirmation is the trickiest part — there are several edge cases that need handling.",
+      "glossary": [
+        {
+          "word": "edge case",
+          "meaning": "an unusual situation at the boundary of normal behaviour"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "Provider confirmation used to be unstructured, but the new flow makes it explicit.",
+      "glossary": [],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "We're moving from a manual back-and-forth to an instant-booking model.",
+      "glossary": [
+        {
+          "word": "back-and-forth",
+          "meaning": "repeated exchange / negotiation"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "If we can pull that off, the customer experience improves dramatically.",
+      "glossary": [
+        {
+          "word": "pull something off",
+          "meaning": "successfully achieve / manage"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "The payment flow has a built-in reimbursement path for when a booking falls through.",
+      "glossary": [
+        {
+          "word": "fall through",
+          "meaning": "fail / not happen as planned"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "Cross-cutting concerns are the things that touch everything — logging, monitoring, security.",
+      "glossary": [
+        {
+          "word": "touch everything",
+          "meaning": "affect every part"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "We've kept these consolidated rather than spreading them across each module.",
+      "glossary": [
+        {
+          "word": "consolidated",
+          "meaning": "gathered together in one place"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "Structured logging means we can actually search through what happened, not just scroll endlessly.",
+      "glossary": [
+        {
+          "word": "scroll endlessly",
+          "meaning": "look through huge amounts of text without finding anything"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "Observability is something we under-invested in early on and have been catching up on since.",
+      "glossary": [
+        {
+          "word": "catch up on",
+          "meaning": "make up for lost time on / fix later"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "Tracing lets us follow a single request all the way through the system.",
+      "glossary": [],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "Without good metrics, you're flying blind when something starts to slow down.",
+      "glossary": [
+        {
+          "word": "fly blind",
+          "meaning": "operate without information / visibility"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "Health checks are wired into the deployment pipeline — if something fails, the rollout stops.",
+      "glossary": [
+        {
+          "word": "rollout",
+          "meaning": "the process of releasing a new version"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "We don't have a fancy SIEM, but we do log every authentication event.",
+      "glossary": [
+        {
+          "word": "SIEM",
+          "meaning": "Security Information and Event Management — security monitoring system"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "Everything ships through CI — there's no manual deployment anymore.",
+      "glossary": [
+        {
+          "word": "ship through CI",
+          "meaning": "deploy via Continuous Integration pipeline"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "We do blue-green deployments to keep downtime to a minimum.",
+      "glossary": [
+        {
+          "word": "to a minimum",
+          "meaning": "as low as possible"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "Rolling back is a one-click operation — that's saved us more than once.",
+      "glossary": [
+        {
+          "word": "save someone more than once",
+          "meaning": "prevent disaster repeatedly"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "Infrastructure is defined as code, so anyone on the team can spin up an environment.",
+      "glossary": [
+        {
+          "word": "spin up",
+          "meaning": "start / create (a server or environment)"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "We host on a managed cloud — the cost story works out cleaner that way.",
+      "glossary": [
+        {
+          "word": "the cost story",
+          "meaning": "the overall financial picture"
+        },
+        {
+          "word": "work out",
+          "meaning": "turn out / be resolved"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "Secrets live in a dedicated vault, never in the codebase.",
+      "glossary": [],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "Feature flags let us roll out changes gradually and pull them back if something breaks.",
+      "glossary": [
+        {
+          "word": "pull back",
+          "meaning": "withdraw / undo"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "Staging mirrors production as closely as we can afford.",
+      "glossary": [
+        {
+          "word": "mirror",
+          "meaning": "replicate exactly"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "From a business standpoint, the key win here is faster booking turnaround.",
+      "glossary": [
+        {
+          "word": "from a business standpoint",
+          "meaning": "looking at it from the business perspective"
+        },
+        {
+          "word": "turnaround",
+          "meaning": "time to complete a process"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "What this means in practice is operators spend less time chasing confirmations.",
+      "glossary": [
+        {
+          "word": "in practice",
+          "meaning": "in real-world terms"
+        },
+        {
+          "word": "chase",
+          "meaning": "actively pursue / follow up on"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "The technical side is one thing, but the impact on day-to-day operations is what really matters.",
+      "glossary": [
+        {
+          "word": "day-to-day",
+          "meaning": "daily / ongoing"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "If we get this right, we should see the conversion rate move noticeably.",
+      "glossary": [
+        {
+          "word": "get this right",
+          "meaning": "do this correctly / succeed"
+        },
+        {
+          "word": "move noticeably",
+          "meaning": "shift in a visible way"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "There's a clear ROI on cleaning up the booking flow, even before we get to the architecture benefits.",
+      "glossary": [
+        {
+          "word": "ROI",
+          "meaning": "Return On Investment"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "Stakeholder buy-in is half the work — the other half is building the thing.",
+      "glossary": [
+        {
+          "word": "buy-in",
+          "meaning": "support / agreement"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "We've been clear with the team about what's in scope and what's not.",
+      "glossary": [],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "I don't want to oversell this — there will be plenty of work after the architecture is in place.",
+      "glossary": [
+        {
+          "word": "oversell",
+          "meaning": "exaggerate / promise too much"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "The roadmap stays the same — what changes is how confidently we can deliver it.",
+      "glossary": [
+        {
+          "word": "roadmap",
+          "meaning": "planned schedule of future work"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "At the end of the day, our job is to make sure the system can grow with the business.",
+      "glossary": [
+        {
+          "word": "at the end of the day",
+          "meaning": "ultimately / when all is said and done"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "We've made a deliberate distinction between risks, non-risks, and sensitivity points.",
+      "glossary": [
+        {
+          "word": "deliberate distinction",
+          "meaning": "intentional separation"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "A trade-off is a known compromise — a risk is an unknown that could bite us.",
+      "glossary": [
+        {
+          "word": "bite someone",
+          "meaning": "cause unexpected problems"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "Documenting risks isn't about being negative — it's about being prepared.",
+      "glossary": [
+        {
+          "word": "be prepared",
+          "meaning": "be ready for what might come"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "For each risk, we've tried to capture a realistic mitigation plan.",
+      "glossary": [],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "Some risks we're choosing to accept rather than mitigate — that's a legitimate decision too.",
+      "glossary": [
+        {
+          "word": "mitigate",
+          "meaning": "reduce the impact of"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "The biggest risk we see is around third-party dependencies that we don't control.",
+      "glossary": [
+        {
+          "word": "third-party",
+          "meaning": "external (vendor, service, library)"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "Sendgrid and WhatsApp are essentially constraints we have to live with.",
+      "glossary": [
+        {
+          "word": "live with",
+          "meaning": "accept and continue despite (something)"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "Budget itself is a constraint, not a risk — we know it, we plan around it.",
+      "glossary": [
+        {
+          "word": "plan around",
+          "meaning": "design while accommodating"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "If I had to summarise this in one sentence, it would be: making decisions explicit.",
+      "glossary": [],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "Bear in mind that what we're showing here is a snapshot — the system keeps evolving.",
+      "glossary": [
+        {
+          "word": "bear in mind",
+          "meaning": "remember / keep in mind"
+        },
+        {
+          "word": "a snapshot",
+          "meaning": "the state at a particular moment"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "I won't go through every single decision, but I'm happy to dig into any of them in Q&A.",
+      "glossary": [],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "Just before I move on, let me highlight one thing that often gets overlooked.",
+      "glossary": [
+        {
+          "word": "get overlooked",
+          "meaning": "be missed / not noticed"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "On a related note, this connects nicely to what I'll cover in the next section.",
+      "glossary": [
+        {
+          "word": "on a related note",
+          "meaning": "connected to that point"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "Stepping back for a second — what does all of this mean for the team in practice?",
+      "glossary": [
+        {
+          "word": "step back",
+          "meaning": "pause to look at the bigger picture"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "I want to flag something here that we haven't fully resolved yet.",
+      "glossary": [
+        {
+          "word": "flag",
+          "meaning": "draw attention to / point out"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "Long story short — the system works, but we're documenting it properly for the first time.",
+      "glossary": [
+        {
+          "word": "long story short",
+          "meaning": "to summarise quickly"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "We're fairly confident in this direction, though we'll keep validating it as we go.",
+      "glossary": [
+        {
+          "word": "as we go",
+          "meaning": "along the way / progressively"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "I wouldn't claim this is the only valid approach — but it's the one we'd defend.",
+      "glossary": [
+        {
+          "word": "I wouldn't claim",
+          "meaning": "I'm not arguing / I'm not asserting"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "Reasonable people could disagree here, and that's fine.",
+      "glossary": [],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "My gut tells me this is the right call, but I want to back it up with data over time.",
+      "glossary": [
+        {
+          "word": "my gut tells me",
+          "meaning": "my instinct says"
+        },
+        {
+          "word": "back it up",
+          "meaning": "support with evidence"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "Take this with a slight grain of salt — the data set is still small.",
+      "glossary": [
+        {
+          "word": "take with a grain of salt",
+          "meaning": "treat with mild scepticism"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "I'd rather flag uncertainty now than pretend everything's nailed down.",
+      "glossary": [
+        {
+          "word": "nailed down",
+          "meaning": "fully decided / definite"
+        }
+      ],
+      "topic": "Software Architecture (Kapalsantai)"
+    },
+    {
+      "text": "We deliberately limited ourselves to two because if everything's a priority, nothing is. Security and Performance Efficiency are the attributes that most directly shape architectural decisions for our current phase — the others stay on the radar, but they don't drive design.",
+      "glossary": [
+        {
+          "word": "if everything's a priority, nothing is",
+          "meaning": "having too many top priorities is the same as having none"
+        },
+        {
+          "word": "on the radar",
+          "meaning": "being watched / not forgotten"
+        }
+      ],
+      "topic": "Q&A Drill (Kapalsantai)"
+    },
+    {
+      "text": "Honestly, it came down to a mix of factors. Server-side rendering matters for SEO on a travel site, the team had more hands-on React experience, and the ecosystem fits where we're going. Angular felt like overkill, and Vue lost out on the team familiarity side.",
+      "glossary": [],
+      "topic": "Q&A Drill (Kapalsantai)"
+    },
+    {
+      "text": "For a team of our size, microservices would have been overkill. We'd have spent more time on infrastructure than on features. We've kept the monolith but drawn clear internal boundaries, so we can split things out later if scale demands it.",
+      "glossary": [
+        {
+          "word": "split things out",
+          "meaning": "separate parts later"
+        }
+      ],
+      "topic": "Q&A Drill (Kapalsantai)"
+    },
+    {
+      "text": "Yes, we use DDD selectively — particularly around booking and payment, which are the parts where the domain complexity is highest. We didn't apply it across the board because forcing DDD on simpler areas would have added more friction than value.",
+      "glossary": [
+        {
+          "word": "across the board",
+          "meaning": "everywhere / in every case"
+        }
+      ],
+      "topic": "Q&A Drill (Kapalsantai)"
+    },
+    {
+      "text": "Fair point — availability is definitely on our radar, and I'd be the first to admit it's likely to bite us eventually. For now, the budget constraints mean we accept a degree of downtime risk, but we've documented this as a known sensitivity point.",
+      "glossary": [
+        {
+          "word": "I'd be the first to admit",
+          "meaning": "I openly acknowledge"
+        }
+      ],
+      "topic": "Q&A Drill (Kapalsantai)"
+    },
+    {
+      "text": "Payment is modelled as a state machine with an explicit refund flow built in. When a booking moves to cancelled, the payment object transitions through its reimbursement states and the customer gets refunded automatically, with the operator notified.",
+      "glossary": [
+        {
+          "word": "build in",
+          "meaning": "include as a core part of"
+        }
+      ],
+      "topic": "Q&A Drill (Kapalsantai)"
+    },
+    {
+      "text": "Self-hosting would have meant carrying the operational burden of backups, patching, and failover ourselves. For a small team, the managed option lets us sleep at night and focus on features. It costs more in dollars, but less in stress.",
+      "glossary": [
+        {
+          "word": "operational burden",
+          "meaning": "ongoing maintenance load"
+        }
+      ],
+      "topic": "Q&A Drill (Kapalsantai)"
+    },
+    {
+      "text": "We've kept costs deliberately low by sticking to managed services where the price-to-pain ratio is good, and self-managing only where we get real leverage. Cloud spend is a few hundred dollars a month at our current scale.",
+      "glossary": [
+        {
+          "word": "price-to-pain ratio",
+          "meaning": "cost weighed against the trouble saved"
+        },
+        {
+          "word": "get leverage",
+          "meaning": "gain real benefit / advantage"
+        }
+      ],
+      "topic": "Q&A Drill (Kapalsantai)"
+    },
+    {
+      "text": "Right now, Perahuku is fairly loosely coupled — it feeds availability data into the booking platform asynchronously. We've made a deliberate choice to treat it as a system under study rather than baking it deeply into the main architecture.",
+      "glossary": [
+        {
+          "word": "loosely coupled",
+          "meaning": "weakly connected / independent"
+        }
+      ],
+      "topic": "Q&A Drill (Kapalsantai)"
+    },
+    {
+      "text": "Good question — we've flagged both as constraints rather than dependencies we control. If one goes down, the affected channel goes down with it. The architecture is structured so we could swap in an alternative provider relatively painlessly, but there'd still be a window of disruption.",
+      "glossary": [
+        {
+          "word": "swap in",
+          "meaning": "replace one thing with another"
+        },
+        {
+          "word": "painlessly",
+          "meaning": "without difficulty"
+        }
+      ],
+      "topic": "Q&A Drill (Kapalsantai)"
+    },
+    {
+      "text": "Honestly, peak season is something we're going to have to address head-on next year. Today we lean on the elasticity of the cloud provider, but the database is the bottleneck we'll hit first. We've sketched a caching strategy that should buy us a lot of headroom.",
+      "glossary": [
+        {
+          "word": "lean on",
+          "meaning": "rely on"
+        },
+        {
+          "word": "buy headroom",
+          "meaning": "gain extra capacity / margin"
+        }
+      ],
+      "topic": "Q&A Drill (Kapalsantai)"
+    },
+    {
+      "text": "Confidentiality is one of the two top quality attributes for exactly that reason. Personal data is encrypted at rest and in transit, access is role-based, and we never log sensitive fields. Payment data we deliberately keep out of our database entirely — it lives with the payment processor.",
+      "glossary": [
+        {
+          "word": "at rest and in transit",
+          "meaning": "while stored and while being sent"
+        }
+      ],
+      "topic": "Q&A Drill (Kapalsantai)"
+    },
+    {
+      "text": "I'll be honest — DR is still a work in progress. We have automated backups with point-in-time recovery, but we haven't done a full restore drill yet. That's on the roadmap for this quarter, and I'd put it at the top of the residual risk list.",
+      "glossary": [
+        {
+          "word": "restore drill",
+          "meaning": "practice exercise of recovery"
+        },
+        {
+          "word": "residual risk",
+          "meaning": "risk remaining after mitigations"
+        }
+      ],
+      "topic": "Q&A Drill (Kapalsantai)"
+    },
+    {
+      "text": "We worked through them with the operators and a small group of regular customers. The scenarios come straight from real pain points they raised — we didn't invent them in a vacuum. That's also why we used the Bass et al. template, to keep them concrete and measurable.",
+      "glossary": [
+        {
+          "word": "in a vacuum",
+          "meaning": "in isolation / disconnected from reality"
+        }
+      ],
+      "topic": "Q&A Drill (Kapalsantai)"
+    },
+    {
+      "text": "Probably keeping Perahuku as a separate system under study rather than merging it into the main platform. It would have been cleaner architecturally to bring them together, but Perahuku is still finding its audience, and locking it in too early would have been a mistake.",
+      "glossary": [],
+      "topic": "Q&A Drill (Kapalsantai)"
+    },
+    {
+      "text": "We did consider that early on, especially for the booking side. But the payment integration, the regulatory side, and the operator workflows all push beyond what no-code platforms handle gracefully. We'd have hit the limits within a few months.",
+      "glossary": [
+        {
+          "word": "hit the limits",
+          "meaning": "reach the point where something stops working"
+        }
+      ],
+      "topic": "Q&A Drill (Kapalsantai)"
+    },
+    {
+      "text": "We track the scenarios themselves — each one has a measurable target. Beyond that, we look at lead time for changes, incident rate, and how often the team has to argue about how things should be done. If those metrics trend the right way, the architecture is doing its job.",
+      "glossary": [
+        {
+          "word": "trend the right way",
+          "meaning": "move in the desired direction"
+        }
+      ],
+      "topic": "Q&A Drill (Kapalsantai)"
+    },
+    {
+      "text": "Honestly, we don't have a formal one yet, and I'd rather be upfront about that than pretend otherwise. What we do have is documentation of where the debt lives, and a habit of paying small amounts down as we touch each area. The architecture work itself is a big down-payment.",
+      "glossary": [
+        {
+          "word": "pay down",
+          "meaning": "reduce gradually (like a loan)"
+        }
+      ],
+      "topic": "Q&A Drill (Kapalsantai)"
+    },
+    {
+      "text": "We're English-and-Indonesian for now, which covers our main markets. The architecture supports adding languages, but we haven't built it out beyond those two. Currency is handled separately — we always price in IDR and convert at checkout.",
+      "glossary": [
+        {
+          "word": "build out",
+          "meaning": "expand / develop further"
+        }
+      ],
+      "topic": "Q&A Drill (Kapalsantai)"
+    },
+    {
+      "text": "Arc42 felt like the right balance of structure and flexibility for our context. C4 is excellent for visualising structure, but arc42 covers decisions, trade-offs, risks, and quality scenarios in one place. For a transferarbeit, that breadth mattered more than diagram polish.",
+      "glossary": [
+        {
+          "word": "for our context",
+          "meaning": "given our specific situation"
+        }
+      ],
+      "topic": "Q&A Drill (Kapalsantai)"
+    },
+    {
+      "text": "We use optimistic locking on the availability records. If two requests collide, the second one fails and the customer is gently told to pick another slot. It's rare in practice because the time windows are narrow, but the safety net is there.",
+      "glossary": [
+        {
+          "word": "safety net",
+          "meaning": "protection against failure"
+        }
+      ],
+      "topic": "Q&A Drill (Kapalsantai)"
+    },
+    {
+      "text": "We're a small team — two engineers and a designer, with operations support shared across the business. That team size has shaped pretty much every architectural call we've made.",
+      "glossary": [],
+      "topic": "Q&A Drill (Kapalsantai)"
+    },
+    {
+      "text": "The initial system was essentially a prototype that grew. We didn't start with formal prototyping, which is honestly part of why we're doing this architecture work now — to give a system that grew organically the deliberate shape it never had.",
+      "glossary": [
+        {
+          "word": "deliberate shape",
+          "meaning": "intentional structure"
+        }
+      ],
+      "topic": "Q&A Drill (Kapalsantai)"
+    },
+    {
+      "text": "We rely on eventual consistency. Availability updates from Perahuku flow into the booking system asynchronously, and we accept a short lag window. For anything safety-critical — payments, refunds — we use synchronous calls with idempotency keys.",
+      "glossary": [],
+      "topic": "Q&A Drill (Kapalsantai)"
+    },
+    {
+      "text": "Briefly. The cold-start latency was a concern for the search and booking paths, and the cost model gets unpredictable above a certain volume. We've kept it as a possible direction for specific workloads, but not as the default.",
+      "glossary": [],
+      "topic": "Q&A Drill (Kapalsantai)"
+    },
+    {
+      "text": "Search is one of our performance-critical paths. Right now it's database-backed with the right indexes, which gets us by at current scale. If volume grows, the plan is to introduce a search index — but we haven't pulled that trigger yet.",
+      "glossary": [
+        {
+          "word": "get by",
+          "meaning": "manage / cope (just enough)"
+        },
+        {
+          "word": "pull the trigger",
+          "meaning": "commit to a decision"
+        }
+      ],
+      "topic": "Q&A Drill (Kapalsantai)"
+    },
+    {
+      "text": "For European customers, yes — that was a non-negotiable from the start. We have a data processing record, right-to-erasure flows are in place, and personal data retention is bounded. The architecture had to support this from day one.",
+      "glossary": [
+        {
+          "word": "non-negotiable",
+          "meaning": "cannot be compromised on"
+        },
+        {
+          "word": "bounded",
+          "meaning": "limited / has clear boundaries"
+        }
+      ],
+      "topic": "Q&A Drill (Kapalsantai)"
+    },
+    {
+      "text": "The elephant in the room is probably that we have a single point of failure at the database layer. Multi-region replication is on the roadmap, but it's not implemented today, and a full outage at our cloud provider would take us down with it.",
+      "glossary": [
+        {
+          "word": "the elephant in the room",
+          "meaning": "an obvious major issue everyone is avoiding"
+        },
+        {
+          "word": "single point of failure",
+          "meaning": "one component whose failure breaks everything"
+        }
+      ],
+      "topic": "Q&A Drill (Kapalsantai)"
+    },
+    {
+      "text": "Today, onboarding is largely a manual process — we sit down with each operator, walk them through Perahuku, and help them set up their first tours. It doesn't scale, but at our current operator count it lets us catch quality issues early.",
+      "glossary": [
+        {
+          "word": "doesn't scale",
+          "meaning": "won't work as the system grows"
+        }
+      ],
+      "topic": "Q&A Drill (Kapalsantai)"
+    },
+    {
+      "text": "Realistically, we'd like to see Kapalsantai become the go-to platform for boat tourism in eastern Indonesia, with operators in two or three new regions and a much more automated booking flow. The architecture decisions we're making now are aimed at making that growth feasible.",
+      "glossary": [
+        {
+          "word": "go-to platform",
+          "meaning": "the default / preferred choice"
+        },
+        {
+          "word": "feasible",
+          "meaning": "achievable / realistic"
+        }
+      ],
+      "topic": "Q&A Drill (Kapalsantai)"
     }
   ],
-  "lastUpdated": "2026-05-18T08:14:16.993Z"
+  "lastUpdated": "2026-05-18T08:14:34.259Z"
 }
