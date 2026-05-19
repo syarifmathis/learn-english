@@ -179,6 +179,9 @@
     },
     "What we set out to do was take a step back and reconstruct the architecture deliberately.": {
       "status": "learning"
+    },
+    "We used the arc42 framework because it gave us a structured way to capture both the decisions and the trade-offs.": {
+      "status": "learning"
     }
   },
   "customSentences": [
@@ -2798,5 +2801,5 @@
       "topic": "Q&A Drill (Kapalsantai)"
     }
   ],
-  "lastUpdated": "2026-05-19T19:50:37.262Z"
+  "lastUpdated": "2026-05-19T19:53:29.940Z"
 }
