@@ -182,6 +182,9 @@
     },
     "We used the arc42 framework because it gave us a structured way to capture both the decisions and the trade-offs.": {
       "status": "learning"
+    },
+    "The honest reality is, technical debt had been piling up silently, and nobody had a clear picture of why.": {
+      "status": "learning"
     }
   },
   "customSentences": [
@@ -2801,5 +2804,5 @@
       "topic": "Q&A Drill (Kapalsantai)"
     }
   ],
-  "lastUpdated": "2026-05-19T19:53:29.940Z"
+  "lastUpdated": "2026-05-19T19:53:58.195Z"
 }
