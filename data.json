@@ -176,6 +176,9 @@
     },
     "Realistically, we'd like to see Kapalsantai become the go-to platform for boat tourism in eastern Indonesia, with operators in two or three new regions and a much more automated booking flow. The architecture decisions we're making now are aimed at making that growth feasible.": {
       "note": "Q: Where do you see Kapalsantai in two years?"
+    },
+    "What we set out to do was take a step back and reconstruct the architecture deliberately.": {
+      "status": "learning"
     }
   },
   "customSentences": [
@@ -2795,5 +2798,5 @@
       "topic": "Q&A Drill (Kapalsantai)"
     }
   ],
-  "lastUpdated": "2026-05-18T08:14:34.259Z"
+  "lastUpdated": "2026-05-19T19:50:37.262Z"
 }
