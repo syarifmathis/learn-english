@@ -2806,11 +2806,17 @@
   ],
   "vocabulary": [
     {
+      "word": "Staggering",
+      "meaning": "",
+      "addedAt": "2026-06-14T08:39:40.670Z",
+      "used": false
+    },
+    {
       "word": "Ladder up",
       "meaning": "",
       "addedAt": "2026-06-14T08:39:30.052Z",
       "used": false
     }
   ],
-  "lastUpdated": "2026-06-14T08:39:31.556Z"
+  "lastUpdated": "2026-06-14T08:39:42.172Z"
 }
