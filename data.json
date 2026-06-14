@@ -185,6 +185,12 @@
     },
     "The honest reality is, technical debt had been piling up silently, and nobody had a clear picture of why.": {
       "status": "learning"
+    },
+    "Let me pause there for a second and unpack what this actually means.": {
+      "status": "known"
+    },
+    "I'll skim over the details here, but the key takeaway is on the next slide.": {
+      "status": "learning"
     }
   },
   "customSentences": [
@@ -2804,19 +2810,6 @@
       "topic": "Q&A Drill (Kapalsantai)"
     }
   ],
-  "vocabulary": [
-    {
-      "word": "Staggering",
-      "meaning": "",
-      "addedAt": "2026-06-14T08:39:40.670Z",
-      "used": false
-    },
-    {
-      "word": "Ladder up",
-      "meaning": "",
-      "addedAt": "2026-06-14T08:39:30.052Z",
-      "used": false
-    }
-  ],
-  "lastUpdated": "2026-06-14T08:39:42.172Z"
+  "vocabulary": [],
+  "lastUpdated": "2026-06-14T09:26:27.147Z"
 }
