@@ -197,6 +197,9 @@
     },
     "The reasoning behind that is simple — you can't optimise for everything at once.": {
       "status": "known"
+    },
+    "Performance Efficiency came in a close second, mainly because of the search experience.": {
+      "status": "learning"
     }
   },
   "customSentences": [
@@ -2817,5 +2820,5 @@
     }
   ],
   "vocabulary": [],
-  "lastUpdated": "2026-06-14T09:26:55.747Z"
+  "lastUpdated": "2026-06-14T09:27:24.338Z"
 }
