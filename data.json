@@ -194,6 +194,9 @@
     },
     "Before I move on, are we all on the same page so far?": {
       "status": "known"
+    },
+    "The reasoning behind that is simple — you can't optimise for everything at once.": {
+      "status": "known"
     }
   },
   "customSentences": [
@@ -2814,5 +2817,5 @@
     }
   ],
   "vocabulary": [],
-  "lastUpdated": "2026-06-14T09:26:44.992Z"
+  "lastUpdated": "2026-06-14T09:26:55.747Z"
 }
