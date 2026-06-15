@@ -203,6 +203,9 @@
     },
     "We had to weigh up speed of delivery against long-term maintainability.": {
       "status": "learning"
+    },
+    "Looking back, we'd probably do it differently — but at the time, it made sense.": {
+      "status": "learning"
     }
   },
   "customSentences": [
@@ -2836,5 +2839,5 @@
       "used": false
     }
   ],
-  "lastUpdated": "2026-06-15T06:13:05.660Z"
+  "lastUpdated": "2026-06-15T06:13:35.179Z"
 }
