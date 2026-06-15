@@ -194,6 +194,9 @@
     },
     "Think of the quality tree as a way of breaking down what 'good' actually looks like.": {
       "status": "learning"
+    },
+    "What we're really trying to do here is make the trade-offs visible.": {
+      "status": "known"
     }
   },
   "customSentences": [
@@ -2827,5 +2830,5 @@
       "used": false
     }
   ],
-  "lastUpdated": "2026-06-15T06:11:25.647Z"
+  "lastUpdated": "2026-06-15T06:11:47.560Z"
 }
