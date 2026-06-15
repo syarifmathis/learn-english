@@ -200,6 +200,9 @@
     },
     "We've quantified each scenario using a weighted score, so the priorities aren't just opinions.": {
       "status": "learning"
+    },
+    "We had to weigh up speed of delivery against long-term maintainability.": {
+      "status": "learning"
     }
   },
   "customSentences": [
@@ -2833,5 +2836,5 @@
       "used": false
     }
   ],
-  "lastUpdated": "2026-06-15T06:12:23.891Z"
+  "lastUpdated": "2026-06-15T06:13:05.660Z"
 }
