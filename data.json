@@ -188,6 +188,9 @@
     },
     "Out of the nine ISO 25010 categories, we deliberately picked just two as Priority 1.": {
       "status": "known"
+    },
+    "Security ended up being our top driver, particularly around payment data.": {
+      "status": "known"
     }
   },
   "customSentences": [
@@ -2821,5 +2824,5 @@
       "used": false
     }
   ],
-  "lastUpdated": "2026-06-15T06:10:17.768Z"
+  "lastUpdated": "2026-06-15T06:10:48.273Z"
 }
