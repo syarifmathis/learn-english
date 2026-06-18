@@ -188,24 +188,6 @@
     },
     "Out of the nine ISO 25010 categories, we deliberately picked just two as Priority 1.": {
       "status": "known"
-    },
-    "Security ended up being our top driver, particularly around payment data.": {
-      "status": "known"
-    },
-    "Think of the quality tree as a way of breaking down what 'good' actually looks like.": {
-      "status": "learning"
-    },
-    "What we're really trying to do here is make the trade-offs visible.": {
-      "status": "known"
-    },
-    "We've quantified each scenario using a weighted score, so the priorities aren't just opinions.": {
-      "status": "learning"
-    },
-    "We had to weigh up speed of delivery against long-term maintainability.": {
-      "status": "learning"
-    },
-    "Looking back, we'd probably do it differently — but at the time, it made sense.": {
-      "status": "learning"
     }
   },
   "customSentences": [
@@ -2827,6 +2809,12 @@
   ],
   "vocabulary": [
     {
+      "word": "Flabbergasted",
+      "meaning": "Verblüfft",
+      "addedAt": "2026-06-18T13:25:15.899Z",
+      "used": false
+    },
+    {
       "word": "Staggering",
       "meaning": "",
       "addedAt": "2026-06-14T08:39:40.670Z",
@@ -2839,5 +2827,5 @@
       "used": false
     }
   ],
-  "lastUpdated": "2026-06-15T06:13:35.179Z"
+  "lastUpdated": "2026-06-18T13:25:34.156Z"
 }
