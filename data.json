@@ -2809,6 +2809,12 @@
   ],
   "vocabulary": [
     {
+      "word": "Exemplary",
+      "meaning": "Vorbildlich",
+      "addedAt": "2026-06-18T13:26:13.536Z",
+      "used": false
+    },
+    {
       "word": "Flabbergasted",
       "meaning": "Verblüfft",
       "addedAt": "2026-06-18T13:25:15.899Z",
@@ -2827,5 +2833,5 @@
       "used": false
     }
   ],
-  "lastUpdated": "2026-06-18T13:25:34.156Z"
+  "lastUpdated": "2026-06-18T13:26:15.038Z"
 }
