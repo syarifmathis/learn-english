@@ -2809,6 +2809,12 @@
   ],
   "vocabulary": [
     {
+      "word": "Commiserations",
+      "meaning": "",
+      "addedAt": "2026-07-06T06:43:18.438Z",
+      "used": false
+    },
+    {
       "word": "Exemplary",
       "meaning": "Vorbildlich",
       "addedAt": "2026-06-18T13:26:13.536Z",
@@ -2833,5 +2839,5 @@
       "used": false
     }
   ],
-  "lastUpdated": "2026-06-18T13:26:15.038Z"
+  "lastUpdated": "2026-07-06T06:43:19.942Z"
 }
