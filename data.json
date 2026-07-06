@@ -2809,6 +2809,12 @@
   ],
   "vocabulary": [
     {
+      "word": "Pinnacle",
+      "meaning": "",
+      "addedAt": "2026-07-06T20:20:41.037Z",
+      "used": false
+    },
+    {
       "word": "Commiserations",
       "meaning": "",
       "addedAt": "2026-07-06T06:43:18.438Z",
@@ -2839,5 +2845,5 @@
       "used": false
     }
   ],
-  "lastUpdated": "2026-07-06T06:43:19.942Z"
+  "lastUpdated": "2026-07-06T20:20:42.541Z"
 }
