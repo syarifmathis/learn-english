@@ -2809,6 +2809,12 @@
   ],
   "vocabulary": [
     {
+      "word": "Hassle",
+      "meaning": "",
+      "addedAt": "2026-07-07T23:06:53.737Z",
+      "used": false
+    },
+    {
       "word": "Pinnacle",
       "meaning": "",
       "addedAt": "2026-07-06T20:20:41.037Z",
@@ -2845,5 +2851,5 @@
       "used": false
     }
   ],
-  "lastUpdated": "2026-07-06T20:20:42.541Z"
+  "lastUpdated": "2026-07-07T23:06:55.241Z"
 }
