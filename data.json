@@ -2809,6 +2809,12 @@
   ],
   "vocabulary": [
     {
+      "word": "Accrued",
+      "meaning": "",
+      "addedAt": "2026-07-08T00:20:29.745Z",
+      "used": false
+    },
+    {
       "word": "Rigged",
       "meaning": "",
       "addedAt": "2026-07-07T23:10:34.258Z",
@@ -2863,5 +2869,5 @@
       "used": false
     }
   ],
-  "lastUpdated": "2026-07-07T23:10:35.761Z"
+  "lastUpdated": "2026-07-08T00:20:31.249Z"
 }
