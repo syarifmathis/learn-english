@@ -188,6 +188,9 @@
     },
     "Out of the nine ISO 25010 categories, we deliberately picked just two as Priority 1.": {
       "status": "known"
+    },
+    "We've quantified each scenario using a weighted score, so the priorities aren't just opinions.": {
+      "note": ""
     }
   },
   "customSentences": [
@@ -2809,12 +2812,6 @@
   ],
   "vocabulary": [
     {
-      "word": "Accrued",
-      "meaning": "",
-      "addedAt": "2026-07-08T00:20:29.745Z",
-      "used": false
-    },
-    {
       "word": "Rigged",
       "meaning": "",
       "addedAt": "2026-07-07T23:10:34.258Z",
@@ -2869,5 +2866,5 @@
       "used": false
     }
   ],
-  "lastUpdated": "2026-07-08T00:20:31.249Z"
+  "lastUpdated": "2026-07-09T17:15:55.231Z"
 }
